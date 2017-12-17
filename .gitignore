@@ -1,0 +1,3 @@
+node_modules
+csharp-models-to-typescript/lib/csharp-models-to-json/bin
+csharp-models-to-typescript/lib/csharp-models-to-json/obj
