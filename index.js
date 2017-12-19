@@ -6,7 +6,7 @@ const path = require('path');
 const { exec } = require('child_process');
 const glob = require('glob');
 
-const convertJsonToTypes = require('./convert');
+const createConverter = require('./converter');
 
 const flatten = arr => arr.reduce((a, b) => a.concat(b), []);
 const unique = arr => arr.filter((elem, pos, arr2) => arr2.indexOf(elem) == pos);
@@ -38,6 +38,11 @@ const include = config.include || [];
 const exclude = config.exclude || [];
 const output = config.output || 'types.json';
 
+const converter = createConverter({
+    customTypeTranslations: config.customTypeTranslations || {},
+    namespace: config.namespace,
+});
+
 const files = diff(uniqueFilesFromGlobPatterns(include), uniqueFilesFromGlobPatterns(exclude));
 
 const dotnetProject = path.join(__dirname, 'lib/csharp-models-to-json');
@@ -57,7 +62,7 @@ exec(`dotnet run --project ${dotnetProject} --files=${files.join(',')}`, (err, s
         return console.error('The output from `csharp-models-to-json` contains invalid JSON.');
     }
 
-    const types = convertJsonToTypes(json);
+    const types = converter(json);
 
     fs.writeFile(output, types, err => {
         if (err) {

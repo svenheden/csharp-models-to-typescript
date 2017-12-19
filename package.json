@@ -4,6 +4,13 @@
   "title": "C# models to TypeScript",
   "author": "Jonathan Persson <persson.jonathan@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonathanp/csharp-models-to-typescript.git"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
   "bin": {
     "csharp-models-to-typescript": "./index.js"
   },
