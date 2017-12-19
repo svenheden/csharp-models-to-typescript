@@ -41,6 +41,7 @@ const output = config.output || 'types.json';
 const converter = createConverter({
     customTypeTranslations: config.customTypeTranslations || {},
     namespace: config.namespace,
+    camelCase: config.camelCase || false
 });
 
 const files = diff(uniqueFilesFromGlobPatterns(include), uniqueFilesFromGlobPatterns(exclude));
