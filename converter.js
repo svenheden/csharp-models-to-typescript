@@ -75,7 +75,7 @@ const createConverter = config => {
         const optional = property.Type.endsWith('?');
         const collection = property.Type.match(collectionRegex);
         const dictionary = property.Type.match(dictionaryRegex);
-        const identifier = optional ? `${property.Identifier}?` : property.Identifier;
+        const identifier = convertIdentifier(optional ? `${property.Identifier}?` : property.Identifier);
         let type;
 
         if (collection) {
@@ -88,7 +88,8 @@ const createConverter = config => {
 
         return `    ${identifier}: ${type};`;
     };
-
+    
+    const convertIdentifier = identifier => config.camelCase ? identifier[0].toLowerCase() + identifier.substring(1) : identifier;
     const convertType = type => type in typeTranslations ? typeTranslations[type] : type;
 
     return convert;
