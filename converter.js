@@ -33,12 +33,14 @@ const createConverter = config => {
             file.Classes.forEach(class_ => {
                 const members = [...class_.Fields, ...class_.Properties];
 
-                rows.push(`// ${path.relative(process.cwd(), file.FileName)}`);
-                rows.push(`export interface ${class_.ClassName} {`);
-                members.forEach(member => {
-                    rows.push(convertProperty(member));
-                });
-                rows.push(`}\n`);
+                if (members.length > 0) {
+                    rows.push(`// ${path.relative(process.cwd(), file.FileName)}`);
+                    rows.push(`export interface ${class_.ClassName} {`);
+                    members.forEach(member => {
+                        rows.push(convertProperty(member));
+                    });
+                    rows.push(`}\n`);
+                }
             });
 
             file.Enums.forEach(enum_ => {
