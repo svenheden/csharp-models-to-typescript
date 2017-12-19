@@ -14,9 +14,6 @@
   "bin": {
     "csharp-models-to-typescript": "./index.js"
   },
-  "scripts": {
-    "build": "dotnet publish lib/csharp-models-to-json -c Release"
-  },
   "dependencies": {
     "glob": "7.1.2"
   }
