@@ -34,13 +34,9 @@ namespace CSharpModelsToJson
                 ClassName = node.Identifier.ToString(),
                 Fields = node.Members.OfType<FieldDeclarationSyntax>()
                     .Where(field => !field.Modifiers.Any(modifier => modifier.ToString() == "const" || modifier.ToString() == "static"))
-                    .Select(field => {
-                        var declaration = field.Declaration.ToString().Split(' ');
-
-                        return new Field {
-                            Identifier = declaration[1],
-                            Type = declaration[0],
-                        };
+                    .Select(field => new Field {
+                        Identifier = field.Declaration.Variables.First().GetText().ToString(),
+                        Type = field.Declaration.Type.ToString(),
                     }),
                 Properties = node.Members.OfType<PropertyDeclarationSyntax>()
                     .Where(property => !property.Modifiers.Any(modifier => modifier.ToString() == "const" || modifier.ToString() == "static"))

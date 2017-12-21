@@ -75,7 +75,8 @@ const createConverter = config => {
         const optional = property.Type.endsWith('?');
         const collection = property.Type.match(collectionRegex);
         const dictionary = property.Type.match(dictionaryRegex);
-        const identifier = convertIdentifier(optional ? `${property.Identifier}?` : property.Identifier);
+        const identifier = convertIdentifier(optional ? `${property.Identifier.split(' ')[0]}?` : property.Identifier.split(' ')[0]);
+
         let type;
 
         if (collection) {
