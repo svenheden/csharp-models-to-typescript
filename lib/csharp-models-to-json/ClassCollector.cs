@@ -33,13 +33,13 @@ namespace CSharpModelsToJson
             var item = new Class() {
                 ClassName = node.Identifier.ToString(),
                 Fields = node.Members.OfType<FieldDeclarationSyntax>()
-                    .Where(field => !field.Modifiers.Any(modifier => modifier.ToString() == "const" || modifier.ToString() == "static"))
+                    .Where(field => !field.Modifiers.Any(modifier => modifier.ToString() == "const" || modifier.ToString() == "static" || modifier.ToString() == "private"))
                     .Select(field => new Field {
                         Identifier = field.Declaration.Variables.First().GetText().ToString(),
                         Type = field.Declaration.Type.ToString(),
                     }),
                 Properties = node.Members.OfType<PropertyDeclarationSyntax>()
-                    .Where(property => !property.Modifiers.Any(modifier => modifier.ToString() == "const" || modifier.ToString() == "static"))
+                    .Where(property => !property.Modifiers.Any(modifier => modifier.ToString() == "const" || modifier.ToString() == "static" || modifier.ToString() == "private"))
                     .Select(property => new Property {
                         Identifier = property.Identifier.ToString(),
                         Type = property.Type.ToString(),
