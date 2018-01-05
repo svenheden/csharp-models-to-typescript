@@ -60,14 +60,16 @@ const createConverter = config => {
             }
         });
 
+        const filteredContent = content.filter(x => x.length > 0);
+
         if (config.namespace) {
             return [
                 `declare module ${config.namespace} {`,
-                ...content,
+                ...filteredContent,
                 '}',
             ].join('\n');
         } else {
-            return content.join('\n');
+            return filteredContent.join('\n');
         }
     };
 
