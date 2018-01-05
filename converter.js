@@ -21,10 +21,7 @@ const defaultTypeTranslations = {
 };
 
 const createConverter = config => {
-    const typeTranslations = {
-        ...defaultTypeTranslations,
-        ...config.customTypeTranslations
-    };
+    const typeTranslations = Object.assign({}, defaultTypeTranslations, config.customTypeTranslations);
 
     const convert = json => {
         const content = json.map(file => {
