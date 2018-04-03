@@ -2,29 +2,30 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
- 
+
 namespace CSharpModelsToJson
 {
-    class Class
+    public class Class
     {
         public string ClassName { get; set; }
         public IEnumerable<Field> Fields { get; set; }
         public IEnumerable<Property> Properties { get; set; }
+        public string BaseClasses { get; set; }
     }
 
-    class Field
+    public class Field
     {
         public string Identifier { get; set; }
         public string Type { get; set; }
     }
 
-    class Property
+    public class Property
     {
         public string Identifier { get; set; }
         public string Type { get; set; }
     }
 
-    class ClassCollector: CSharpSyntaxWalker
+    public class ClassCollector : CSharpSyntaxWalker
     {
         public readonly List<Class> Items = new List<Class>();
 
@@ -43,9 +44,10 @@ namespace CSharpModelsToJson
                     .Select(property => new Property {
                         Identifier = property.Identifier.ToString(),
                         Type = property.Type.ToString(),
-                    })
+                    }),
+                BaseClasses = node.BaseList?.Types.ToString(),
             };
-            
+
             this.Items.Add(item);
         }
     }
