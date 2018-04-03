@@ -29,10 +29,11 @@ const createConverter = config => {
 
             file.Classes.forEach(class_ => {
                 const members = [...class_.Fields, ...class_.Properties];
+                const baseClasses = class_.BaseClasses ? ` extends ${class_.BaseClasses}` : '';
 
                 if (members.length > 0) {
                     rows.push(`// ${path.relative(process.cwd(), file.FileName)}`);
-                    rows.push(`export interface ${class_.ClassName} {`);
+                    rows.push(`export interface ${class_.ClassName}${baseClasses} {`);
                     members.forEach(member => {
                         rows.push(convertProperty(member));
                     });
@@ -88,7 +89,7 @@ const createConverter = config => {
 
         return `    ${identifier}: ${type};`;
     };
-    
+
     const convertIdentifier = identifier => config.camelCase ? identifier[0].toLowerCase() + identifier.substring(1) : identifier;
     const convertType = type => type in typeTranslations ? typeTranslations[type] : type;
 
