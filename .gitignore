@@ -1,3 +1,8 @@
 node_modules
 lib/csharp-models-to-json/bin
 lib/csharp-models-to-json/obj
+lib/csharp-models-to-json_test/obj/
+lib/csharp-models-to-json_test/bin/
+
+.vscode/*
+.idea/*
