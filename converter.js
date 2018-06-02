@@ -73,12 +73,21 @@ const createConverter = config => {
         const rows = [];
 
         rows.push(`// ${filename}`);
-        rows.push(`export type ${enum_.Identifier} =`);
-        enum_.Values.forEach((value, i) => {
-            const delimiter = (i === enum_.Values.length - 1) ? ';' : ' |';
-            rows.push(`    '${value}'${delimiter}`);
-        });
-        rows.push('');
+
+        if (config.stringLiteralTypesInsteadOfEnums) {
+            rows.push(`export type ${enum_.Identifier} =`);
+            enum_.Values.forEach((value, i) => {
+                const delimiter = (i === enum_.Values.length - 1) ? ';' : ' |';
+                rows.push(`    '${value}'${delimiter}`);
+            });
+            rows.push('');
+        } else {
+            rows.push(`export enum ${enum_.Identifier} {`);
+            enum_.Values.forEach(value => {
+                rows.push(`    ${value} = '${value}',`);
+            });
+            rows.push(`}\n`);
+        }
 
         return rows;
     }
