@@ -1,5 +1,7 @@
 const path = require('path');
 
+const flatten = arr => arr.reduce((a, b) => a.concat(b), []);
+
 const collectionRegex = /^(?:I?List|IEnumerable|ICollection|HashSet)<([\w\d]+)>\?*$/;
 const dictionaryRegex = /^I?Dictionary<([\w\d]+),\s?([\w\d]+)>\?*$/;
 
@@ -25,37 +27,16 @@ const createConverter = config => {
 
     const convert = json => {
         const content = json.map(file => {
-            const rows = [];
+            const filename = path.relative(process.cwd(), file.FileName);
 
-            file.Classes.forEach(class_ => {
-                const members = [...class_.Fields, ...class_.Properties];
-                const baseClasses = class_.BaseClasses ? ` extends ${class_.BaseClasses}` : '';
+            const rows = flatten([
+                ...file.Classes.map(class_ => convertClass(class_, filename)),
+                ...file.Enums.map(enum_ => convertEnum(enum_, filename)),
+            ]);
 
-                if (members.length > 0) {
-                    rows.push(`// ${path.relative(process.cwd(), file.FileName)}`);
-                    rows.push(`export interface ${class_.ClassName}${baseClasses} {`);
-                    members.forEach(member => {
-                        rows.push(convertProperty(member));
-                    });
-                    rows.push(`}\n`);
-                }
-            });
-
-            file.Enums.forEach(enum_ => {
-                rows.push(`// ${path.relative(process.cwd(), file.FileName)}`);
-                rows.push(`export type ${enum_.Identifier} =`);
-                enum_.Values.forEach((value, i) => {
-                    const delimiter = (i === enum_.Values.length - 1) ? ';' : ' |';
-                    rows.push(`    '${value}'${delimiter}`);
-                });
-                rows.push('');
-            });
-
-            if (config.namespace) {
-                return rows.map(row => `    ${row}`).join('\n');
-            } else {
-                return rows.join('\n');
-            }
+            return rows
+                .map(row => config.namespace ? `    ${row}` : row)
+                .join('\n');
         });
 
         const filteredContent = content.filter(x => x.length > 0);
@@ -70,6 +51,37 @@ const createConverter = config => {
             return filteredContent.join('\n');
         }
     };
+
+    const convertClass = (class_, filename) => {
+        const rows = [];
+        const members = [...class_.Fields, ...class_.Properties];
+        const baseClasses = class_.BaseClasses ? ` extends ${class_.BaseClasses}` : '';
+
+        if (members.length > 0) {
+            rows.push(`// ${filename}`);
+            rows.push(`export interface ${class_.ClassName}${baseClasses} {`);
+            members.forEach(member => {
+                rows.push(convertProperty(member));
+            });
+            rows.push(`}\n`);
+        }
+
+        return rows;
+    }
+
+    const convertEnum = (enum_, filename) => {
+        const rows = [];
+
+        rows.push(`// ${filename}`);
+        rows.push(`export type ${enum_.Identifier} =`);
+        enum_.Values.forEach((value, i) => {
+            const delimiter = (i === enum_.Values.length - 1) ? ';' : ' |';
+            rows.push(`    '${value}'${delimiter}`);
+        });
+        rows.push('');
+
+        return rows;
+    }
 
     const convertProperty = property => {
         const optional = property.Type.endsWith('?');
