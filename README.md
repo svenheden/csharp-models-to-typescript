@@ -30,6 +30,7 @@ $ npm install --save csharp-models-to-typescript
     "namespace": "Api",
     "output": "./api.d.ts",
     "camelCase": false,
+    "stringLiteralTypesInsteadOfEnums": false,
     "customTypeTranslations": {
         "ProductName": "string",
         "ProductNumber": "string"
