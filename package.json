@@ -1,6 +1,6 @@
 {
   "name": "csharp-models-to-typescript",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "title": "C# models to TypeScript",
   "author": "Jonathan Persson <persson.jonathan@gmail.com>",
   "license": "MIT",
@@ -13,8 +13,5 @@
   },
   "bin": {
     "csharp-models-to-typescript": "./index.js"
-  },
-  "dependencies": {
-    "glob": "7.1.2"
   }
 }

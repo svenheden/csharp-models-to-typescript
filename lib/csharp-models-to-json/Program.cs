@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
+using Ganss.IO;
 
 namespace CSharpModelsToJson
 {
@@ -19,18 +20,48 @@ namespace CSharpModelsToJson
         {
             List<File> files = new List<File>();
 
-            foreach (var argument in args) {
-                if (argument.StartsWith("--files=")) {
-                    var paths = argument.Substring("--files=".Length).Split(',');
+            foreach (string fileName in getFileNames(args)) {
+                files.Add(parseFile(fileName));
+            }
 
-                    foreach (var path in paths) {
-                        files.Add(parseFile(path));
+            string json = JsonConvert.SerializeObject(files);
+            System.Console.WriteLine(json);
+        }
+
+        static List<string> getFileNames(string[] args) {
+            List<string> fileNames = new List<string>();
+
+            foreach (string arg in args) {
+                if (arg.StartsWith("--include=")) {
+                    string[] globPatterns = arg.Substring("--include=".Length).Split(';');
+
+                    foreach (var path in expandGlobPatterns(globPatterns)) {
+                        fileNames.Add(path);
+                    }
+                } else if (arg.StartsWith("--exclude=")) {
+                    string[] globPatterns = arg.Substring("--exclude=".Length).Split(';');
+
+                    foreach (var path in expandGlobPatterns(globPatterns)) {
+                        fileNames.Remove(path);
                     }
                 }
             }
 
-            var json = JsonConvert.SerializeObject(files);
-            System.Console.WriteLine(json);
+            return fileNames;
+        }
+
+        static List<string> expandGlobPatterns(string[] globPatterns) {
+            List<string> fileNames = new List<string>();
+
+            foreach (string pattern in globPatterns) {
+                var paths = Glob.Expand(pattern);
+
+                foreach (var path in paths) {
+                    fileNames.Add(path.FullName);
+                }
+            }
+
+            return fileNames;
         }
 
         static File parseFile(string path) {
