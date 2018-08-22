@@ -4,14 +4,8 @@ const fs = require('fs');
 const process = require('process');
 const path = require('path');
 const { exec } = require('child_process');
-const glob = require('glob');
 
 const createConverter = require('./converter');
-
-const flatten = arr => arr.reduce((a, b) => a.concat(b), []);
-const unique = arr => arr.filter((elem, pos, arr2) => arr2.indexOf(elem) == pos);
-const diff = (arr1, arr2) => arr1.filter(i => arr2.indexOf(i) < 0);
-const uniqueFilesFromGlobPatterns = patterns => unique(flatten(patterns.map(pattern => glob.sync(pattern))));
 
 const configArg = process.argv.find(x => x.startsWith('--config='));
 
@@ -45,13 +39,14 @@ const converter = createConverter({
     stringLiteralTypesInsteadOfEnums: config.stringLiteralTypesInsteadOfEnums || false
 });
 
-const files = diff(uniqueFilesFromGlobPatterns(include), uniqueFilesFromGlobPatterns(exclude));
-
 const dotnetProject = path.join(__dirname, 'lib/csharp-models-to-json');
 
 let timer = process.hrtime();
 
-exec(`dotnet run --project ${dotnetProject} --files=${files.join(',')}`, (err, stdout) => {
+const absoluteIncludes = include.map(x => path.resolve(path.dirname(configPath), x));
+const absoluteExcludes = exclude.map(x => path.resolve(path.dirname(configPath), x));
+
+exec(`dotnet run --project ${dotnetProject} --include="${absoluteIncludes.join(';')}" --exclude="${absoluteExcludes.join(';')}"`, (err, stdout) => {
     if (err) {
         return console.error(err);
     }
