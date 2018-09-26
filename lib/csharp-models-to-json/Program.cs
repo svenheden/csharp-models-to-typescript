@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,6 +12,7 @@ namespace CSharpModelsToJson
         public string FileName { get; set; }
         public IEnumerable<Class> Classes { get; set; }
         public IEnumerable<Enum> Enums { get; set; }
+        public IEnumerable<Interface> Interfaces { get; set; }
     }
 
     class Program
@@ -71,14 +72,17 @@ namespace CSharpModelsToJson
  
             var classCollector = new ClassCollector();
             var enumCollector = new EnumCollector();
+            var interfaceCollector = new InterfaceCollector();
 
             classCollector.Visit(root); 
             enumCollector.Visit(root);
+            interfaceCollector.Visit(root);
 
             return new File() {
                 FileName = System.IO.Path.GetFullPath(path),
                 Classes = classCollector.Items,
-                Enums = enumCollector.Items
+                Enums = enumCollector.Items,
+                Interfaces = interfaceCollector.Items
             };
         }
     }

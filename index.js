@@ -36,7 +36,9 @@ const converter = createConverter({
     customTypeTranslations: config.customTypeTranslations || {},
     namespace: config.namespace,
     camelCase: config.camelCase || false,
-    stringLiteralTypesInsteadOfEnums: config.stringLiteralTypesInsteadOfEnums || false
+    stringLiteralTypesInsteadOfEnums: config.stringLiteralTypesInsteadOfEnums || false,
+    returnPromise: config.returnPromise || false,
+    includeMethods : config.includeMethods || false
 });
 
 const dotnetProject = path.join(__dirname, 'lib/csharp-models-to-json');
