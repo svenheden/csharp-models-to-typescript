@@ -10,6 +10,7 @@ namespace CSharpModelsToJson
         public string ClassName { get; set; }
         public IEnumerable<Field> Fields { get; set; }
         public IEnumerable<Property> Properties { get; set; }
+        public IEnumerable<Method> Methods { get; set; }
         public string BaseClasses { get; set; }
     }
 
@@ -39,6 +40,23 @@ namespace CSharpModelsToJson
                         Identifier = field.Declaration.Variables.First().GetText().ToString(),
                         Type = field.Declaration.Type.ToString(),
                     }),
+                Methods = node.Members.OfType<MethodDeclarationSyntax>()
+          .Where(method => !method.Modifiers.Any(modifier => modifier.ToString() == "private" || modifier.ToString() == "static"))
+          .Select(method => new Method
+          {
+              Name = method.Identifier.Text,
+              ReturnType = method.ReturnType.ToString(),
+              Params = method.ParameterList.Parameters.Select(parameter => new Parameter
+              {
+                  Identifier = parameter.Identifier.Text,
+                  Type = parameter.Type.ToString(),
+                  Default = parameter.Default != null ? new DefaultValue
+                  {
+                      Value = parameter.Default.Value.GetLastToken().Value != null ? parameter.Default.Value.GetLastToken().Value.ToString() : parameter.Default.Value.GetLastToken().ValueText,
+                      IsNull = parameter.Default.Value.GetLastToken().Kind().ToString() == "NullKeyword"
+                  } : null
+              })
+          }),
                 Properties = node.Members.OfType<PropertyDeclarationSyntax>()
                     .Where(property => !property.Modifiers.Any(modifier => modifier.ToString() == "const" || modifier.ToString() == "static" || modifier.ToString() == "private"))
                     .Select(property => new Property {
