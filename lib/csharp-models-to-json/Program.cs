@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Ganss.IO;
 
@@ -18,9 +19,19 @@ namespace CSharpModelsToJson
     {
         static void Main(string[] args)
         {
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile(args[0], true, true)
+                .Build();
+
+            List<string> includes = new List<string>();
+            List<string> excludes = new List<string>();
+
+            config.Bind("include", includes);
+            config.Bind("exclude", excludes);
+
             List<File> files = new List<File>();
 
-            foreach (string fileName in getFileNames(args)) {
+            foreach (string fileName in getFileNames(includes, excludes)) {
                 files.Add(parseFile(fileName));
             }
 
@@ -28,29 +39,21 @@ namespace CSharpModelsToJson
             System.Console.WriteLine(json);
         }
 
-        static List<string> getFileNames(string[] args) {
+        static List<string> getFileNames(List<string> includes, List<string> excludes) {
             List<string> fileNames = new List<string>();
 
-            foreach (string arg in args) {
-                if (arg.StartsWith("--include=")) {
-                    string[] globPatterns = arg.Substring("--include=".Length).Split(';');
+            foreach (var path in expandGlobPatterns(includes)) {
+                fileNames.Add(path);
+            }
 
-                    foreach (var path in expandGlobPatterns(globPatterns)) {
-                        fileNames.Add(path);
-                    }
-                } else if (arg.StartsWith("--exclude=")) {
-                    string[] globPatterns = arg.Substring("--exclude=".Length).Split(';');
-
-                    foreach (var path in expandGlobPatterns(globPatterns)) {
-                        fileNames.Remove(path);
-                    }
-                }
+            foreach (var path in expandGlobPatterns(excludes)) {
+                fileNames.Remove(path);
             }
 
             return fileNames;
         }
 
-        static List<string> expandGlobPatterns(string[] globPatterns) {
+        static List<string> expandGlobPatterns(List<string> globPatterns) {
             List<string> fileNames = new List<string>();
 
             foreach (string pattern in globPatterns) {
