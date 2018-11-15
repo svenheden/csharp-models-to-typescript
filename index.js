@@ -28,8 +28,6 @@ try {
     return console.error(`Configuration file "${configPath}" contains invalid JSON.`);
 }
 
-const include = config.include || [];
-const exclude = config.exclude || [];
 const output = config.output || 'types.json';
 
 const converter = createConverter({
@@ -43,10 +41,7 @@ const dotnetProject = path.join(__dirname, 'lib/csharp-models-to-json');
 
 let timer = process.hrtime();
 
-const absoluteIncludes = include.map(x => path.resolve(path.dirname(configPath), x));
-const absoluteExcludes = exclude.map(x => path.resolve(path.dirname(configPath), x));
-
-exec(`dotnet run --project ${dotnetProject} --include="${absoluteIncludes.join(';')}" --exclude="${absoluteExcludes.join(';')}"`, (err, stdout) => {
+exec(`dotnet run --project "${dotnetProject}" "${path.resolve(configPath)}"`, (err, stdout) => {
     if (err) {
         return console.error(err);
     }
