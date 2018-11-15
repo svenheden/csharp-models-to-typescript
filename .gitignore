@@ -1,3 +1,4 @@
+.DS_Store
 node_modules
 lib/csharp-models-to-json/bin
 lib/csharp-models-to-json/obj
