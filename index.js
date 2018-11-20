@@ -4,14 +4,8 @@ const fs = require('fs');
 const process = require('process');
 const path = require('path');
 const { exec } = require('child_process');
-const glob = require('glob');
 
 const createConverter = require('./converter');
-
-const flatten = arr => arr.reduce((a, b) => a.concat(b), []);
-const unique = arr => arr.filter((elem, pos, arr2) => arr2.indexOf(elem) == pos);
-const diff = (arr1, arr2) => arr1.filter(i => arr2.indexOf(i) < 0);
-const uniqueFilesFromGlobPatterns = patterns => unique(flatten(patterns.map(pattern => glob.sync(pattern))));
 
 const configArg = process.argv.find(x => x.startsWith('--config='));
 
@@ -34,23 +28,20 @@ try {
     return console.error(`Configuration file "${configPath}" contains invalid JSON.`);
 }
 
-const include = config.include || [];
-const exclude = config.exclude || [];
 const output = config.output || 'types.json';
 
 const converter = createConverter({
     customTypeTranslations: config.customTypeTranslations || {},
     namespace: config.namespace,
-    camelCase: config.camelCase || false
+    camelCase: config.camelCase || false,
+    stringLiteralTypesInsteadOfEnums: config.stringLiteralTypesInsteadOfEnums || false
 });
-
-const files = diff(uniqueFilesFromGlobPatterns(include), uniqueFilesFromGlobPatterns(exclude));
 
 const dotnetProject = path.join(__dirname, 'lib/csharp-models-to-json');
 
 let timer = process.hrtime();
 
-exec(`dotnet run --project ${dotnetProject} --files=${files.join(',')}`, (err, stdout) => {
+exec(`dotnet run --project "${dotnetProject}" "${path.resolve(configPath)}"`, (err, stdout) => {
     if (err) {
         return console.error(err);
     }

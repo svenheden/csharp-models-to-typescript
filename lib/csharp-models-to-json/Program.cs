@@ -2,7 +2,9 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Ganss.IO;
 
 namespace CSharpModelsToJson
 {
@@ -17,20 +19,52 @@ namespace CSharpModelsToJson
     {
         static void Main(string[] args)
         {
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile(args[0], true, true)
+                .Build();
+
+            List<string> includes = new List<string>();
+            List<string> excludes = new List<string>();
+
+            config.Bind("include", includes);
+            config.Bind("exclude", excludes);
+
             List<File> files = new List<File>();
 
-            foreach (var argument in args) {
-                if (argument.StartsWith("--files=")) {
-                    var paths = argument.Substring("--files=".Length).Split(',');
+            foreach (string fileName in getFileNames(includes, excludes)) {
+                files.Add(parseFile(fileName));
+            }
 
-                    foreach (var path in paths) {
-                        files.Add(parseFile(path));
-                    }
+            string json = JsonConvert.SerializeObject(files);
+            System.Console.WriteLine(json);
+        }
+
+        static List<string> getFileNames(List<string> includes, List<string> excludes) {
+            List<string> fileNames = new List<string>();
+
+            foreach (var path in expandGlobPatterns(includes)) {
+                fileNames.Add(path);
+            }
+
+            foreach (var path in expandGlobPatterns(excludes)) {
+                fileNames.Remove(path);
+            }
+
+            return fileNames;
+        }
+
+        static List<string> expandGlobPatterns(List<string> globPatterns) {
+            List<string> fileNames = new List<string>();
+
+            foreach (string pattern in globPatterns) {
+                var paths = Glob.Expand(pattern);
+
+                foreach (var path in paths) {
+                    fileNames.Add(path.FullName);
                 }
             }
 
-            var json = JsonConvert.SerializeObject(files);
-            System.Console.WriteLine(json);
+            return fileNames;
         }
 
         static File parseFile(string path) {
