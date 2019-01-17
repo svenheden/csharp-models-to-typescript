@@ -32,35 +32,36 @@ namespace CSharpModelsToJson
 
         public override void VisitClassDeclaration(ClassDeclarationSyntax node)
         {
-            var syntaxClass = new Class()
+            var item = new Class()
             {
                 ClassName = node.Identifier.ToString(),
                 Fields = node.Members.OfType<FieldDeclarationSyntax>()
                     .Where(field => IsAccessible(field.Modifiers))
-                    .Select(GetField),
+                    .Select(ConvertField),
                 Properties = node.Members.OfType<PropertyDeclarationSyntax>()
                     .Where(property => IsAccessible(property.Modifiers))
-                    .Select(GetProperty),
+                    .Select(ConvertProperty),
                 BaseClasses = node.BaseList?.Types.ToString(),
             };
 
-            Classes.Add(syntaxClass);
+            Classes.Add(item);
         }
 
-        private static bool IsAccessible(SyntaxTokenList modifiers)
-        {
-            return modifiers.Any(modifier => modifier.ToString() == "const" || modifier.ToString() == "static" || modifier.ToString() == "private");
-        }
+        private static bool IsAccessible(SyntaxTokenList modifiers) => modifiers.All(modifier =>
+            modifier.ToString() != "const" &&
+            modifier.ToString() != "static" && 
+            modifier.ToString() != "private"
+        );
 
-        private static Field GetField(FieldDeclarationSyntax field) => new Field
+        private static Field ConvertField(FieldDeclarationSyntax field) => new Field
         {
-            Identifier = field.Declaration.Variables.First().GetText().ToString(), 
+            Identifier = field.Declaration.Variables.First().GetText().ToString(),
             Type = field.Declaration.Type.ToString(),
         };
 
-        private static Property GetProperty(PropertyDeclarationSyntax property) => new Property
+        private static Property ConvertProperty(PropertyDeclarationSyntax property) => new Property
         {
-            Identifier = property.Identifier.ToString(), 
+            Identifier = property.Identifier.ToString(),
             Type = property.Type.ToString(),
         };
     }
