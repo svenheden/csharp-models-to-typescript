@@ -26,8 +26,8 @@ namespace CSharpModelsToJson.Tests
             var classCollector = new ClassCollector();
             classCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
-            Assert.IsNotNull(classCollector.Items);
-            Assert.AreEqual(classCollector.Items.First().BaseClasses, baseClasses);
+            Assert.IsNotNull(classCollector.Classes);
+            Assert.AreEqual(classCollector.Classes.First().BaseClasses, baseClasses);
         }
 
         [Test]
@@ -48,8 +48,37 @@ namespace CSharpModelsToJson.Tests
             var classCollector = new ClassCollector();
             classCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
-            Assert.IsNotNull(classCollector.Items);
-            Assert.AreEqual(classCollector.Items.First().BaseClasses, baseClasses);
+            Assert.IsNotNull(classCollector.Classes);
+            Assert.AreEqual(classCollector.Classes.First().BaseClasses, baseClasses);
+        }
+        
+        [Test]
+        public void AccessibilityRespected()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+                public class A : IController<Controller>
+                {
+                    public void AMember()
+                    {
+                        const A_Constant = 0;
+                        
+                        private string B { get; set }
+
+                        static string C { get; set }
+
+                        public string Included { get; set } 
+                    }
+                }"
+            );
+
+            var root = (CompilationUnitSyntax)tree.GetRoot();
+
+            var classCollector = new ClassCollector();
+            classCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
+
+            Assert.IsNotNull(classCollector.Classes);
+            Assert.IsNotNull(classCollector.Classes.First().Properties);
+            Assert.AreEqual(classCollector.Classes.First().Properties.Count(), 1);
         }
     }
 }

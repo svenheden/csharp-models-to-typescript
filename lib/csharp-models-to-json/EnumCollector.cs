@@ -13,7 +13,7 @@ namespace CSharpModelsToJson
 
     class EnumCollector: CSharpSyntaxWalker
     {
-        public readonly List<Enum> Items = new List<Enum>();
+        public readonly List<Enum> Enums = new List<Enum>();
 
         public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
         {
@@ -22,7 +22,7 @@ namespace CSharpModelsToJson
                 Values = node.Members.Select(val => val.Identifier.ToString())
             };
             
-            this.Items.Add(item);
+            this.Enums.Add(item);
         }
     }
 }
