@@ -80,8 +80,8 @@ namespace CSharpModelsToJson
 
             return new File() {
                 FileName = System.IO.Path.GetFullPath(path),
-                Classes = classCollector.Items,
-                Enums = enumCollector.Items
+                Classes = classCollector.Classes,
+                Enums = enumCollector.Enums
             };
         }
     }

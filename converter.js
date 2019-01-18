@@ -2,7 +2,7 @@ const path = require('path');
 
 const flatten = arr => arr.reduce((a, b) => a.concat(b), []);
 
-const collectionRegex = /^(?:I?List|IEnumerable|ICollection|HashSet)<([\w\d]+)>\?*$/;
+const collectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|HashSet)<([\w\d]+)>\?*$/;
 const dictionaryRegex = /^I?Dictionary<([\w\d]+),\s?([\w\d]+)>\?*$/;
 
 const defaultTypeTranslations = {
