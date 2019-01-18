@@ -59,8 +59,10 @@ namespace CSharpModelsToJson
             foreach (string pattern in globPatterns) {
                 var paths = Glob.Expand(pattern);
 
-                fileNames.AddRange(paths.Select(path => path.FullName));
+                foreach (var path in paths) {
+                    fileNames.Add(path.FullName);
                 }
+            }
 
             return fileNames;
         }
@@ -76,7 +78,7 @@ namespace CSharpModelsToJson
             modelCollector.Visit(root);
             enumCollector.Visit(root);
 
-            return new File()
+            return new File() {
                 FileName = System.IO.Path.GetFullPath(path),
                 Models = modelCollector.Models,
                 Enums = enumCollector.Enums
