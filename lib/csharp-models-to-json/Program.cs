@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -11,7 +11,7 @@ namespace CSharpModelsToJson
     class File
     {
         public string FileName { get; set; }
-        public IEnumerable<Class> Classes { get; set; }
+        public IEnumerable<Model> Models { get; set; }
         public IEnumerable<Enum> Enums { get; set; }
     }
 
@@ -59,10 +59,8 @@ namespace CSharpModelsToJson
             foreach (string pattern in globPatterns) {
                 var paths = Glob.Expand(pattern);
 
-                foreach (var path in paths) {
-                    fileNames.Add(path.FullName);
+                fileNames.AddRange(paths.Select(path => path.FullName));
                 }
-            }
 
             return fileNames;
         }
@@ -72,15 +70,15 @@ namespace CSharpModelsToJson
             SyntaxTree tree = CSharpSyntaxTree.ParseText(source);
             var root = (CompilationUnitSyntax) tree.GetRoot();
  
-            var classCollector = new ClassCollector();
+            var modelCollector = new ModelCollector();
             var enumCollector = new EnumCollector();
 
-            classCollector.Visit(root); 
+            modelCollector.Visit(root);
             enumCollector.Visit(root);
 
-            return new File() {
+            return new File()
                 FileName = System.IO.Path.GetFullPath(path),
-                Classes = classCollector.Classes,
+                Models = modelCollector.Models,
                 Enums = enumCollector.Enums
             };
         }

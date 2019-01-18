@@ -30,7 +30,7 @@ const createConverter = config => {
             const filename = path.relative(process.cwd(), file.FileName);
 
             const rows = flatten([
-                ...file.Classes.map(class_ => convertClass(class_, filename)),
+                ...file.Models.map(model => convertModel(model, filename)),
                 ...file.Enums.map(enum_ => convertEnum(enum_, filename)),
             ]);
 
@@ -52,14 +52,14 @@ const createConverter = config => {
         }
     };
 
-    const convertClass = (class_, filename) => {
+    const convertModel = (model, filename) => {
         const rows = [];
-        const members = [...class_.Fields, ...class_.Properties];
-        const baseClasses = class_.BaseClasses ? ` extends ${class_.BaseClasses}` : '';
+        const members = [...model.Fields, ...model.Properties];
+        const baseClasses = model.BaseClasses ? ` extends ${model.BaseClasses}` : '';
 
         if (members.length > 0) {
             rows.push(`// ${filename}`);
-            rows.push(`export interface ${class_.ClassName}${baseClasses} {`);
+            rows.push(`export interface ${model.ModelName}${baseClasses} {`);
             members.forEach(member => {
                 rows.push(convertProperty(member));
             });

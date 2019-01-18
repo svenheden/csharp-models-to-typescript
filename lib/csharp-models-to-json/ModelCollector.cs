@@ -6,9 +6,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CSharpModelsToJson
 {
-    public class Class
+    public class Model
     {
-        public string ClassName { get; set; }
+        public string ModelName { get; set; }
         public IEnumerable<Field> Fields { get; set; }
         public IEnumerable<Property> Properties { get; set; }
         public string BaseClasses { get; set; }
@@ -26,30 +26,42 @@ namespace CSharpModelsToJson
         public string Type { get; set; }
     }
 
-    public class ClassCollector : CSharpSyntaxWalker
+    public class ModelCollector : CSharpSyntaxWalker
     {
-        public readonly List<Class> Classes = new List<Class>();
+        public readonly List<Model> Models = new List<Model>();
 
         public override void VisitClassDeclaration(ClassDeclarationSyntax node)
         {
-            var item = new Class()
+            var model = GetModel(node);
+
+            Models.Add(model);
+        }
+
+        public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
+        {
+            var model = GetModel(node);
+
+            Models.Add(model);
+        }
+
+        private static Model GetModel(TypeDeclarationSyntax node)
+        {
+            return new Model()
             {
-                ClassName = node.Identifier.ToString(),
+                ModelName = node.Identifier.ToString(),
                 Fields = node.Members.OfType<FieldDeclarationSyntax>()
-                    .Where(field => IsAccessible(field.Modifiers))
-                    .Select(ConvertField),
+                                .Where(field => IsAccessible(field.Modifiers))
+                                .Select(ConvertField),
                 Properties = node.Members.OfType<PropertyDeclarationSyntax>()
-                    .Where(property => IsAccessible(property.Modifiers))
-                    .Select(ConvertProperty),
+                                .Where(property => IsAccessible(property.Modifiers))
+                                .Select(ConvertProperty),
                 BaseClasses = node.BaseList?.Types.ToString(),
             };
-
-            this.Classes.Add(item);
         }
 
         private static bool IsAccessible(SyntaxTokenList modifiers) => modifiers.All(modifier =>
             modifier.ToString() != "const" &&
-            modifier.ToString() != "static" && 
+            modifier.ToString() != "static" &&
             modifier.ToString() != "private"
         );
 
