@@ -44,7 +44,7 @@ namespace CSharpModelsToJson
                 BaseClasses = node.BaseList?.Types.ToString(),
             };
 
-            Classes.Add(item);
+            this.Classes.Add(item);
         }
 
         private static bool IsAccessible(SyntaxTokenList modifiers) => modifiers.All(modifier =>
