@@ -9,7 +9,7 @@ namespace CSharpModelsToJson.Tests
     public class ClassCollectorTest
     {
         [Test]
-        public void BasicInheritancetest()
+        public void BasicInheritance_ReturnsInheritedClass()
         {
             const string baseClasses = "B, C, D";
             var tree = CSharpSyntaxTree.ParseText(@"
@@ -23,15 +23,59 @@ namespace CSharpModelsToJson.Tests
 
             var root = (CompilationUnitSyntax)tree.GetRoot();
 
-            var classCollector = new ClassCollector();
+            var classCollector = new ModelCollector();
             classCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
-            Assert.IsNotNull(classCollector.Classes);
-            Assert.AreEqual(classCollector.Classes.First().BaseClasses, baseClasses);
+            Assert.IsNotNull(classCollector.Models);
+            Assert.AreEqual(classCollector.Models.First().BaseClasses, baseClasses);
+        }
+        
+        [Test]
+        public void InterfaceImport_ReturnsSyntaxClassFromInterface()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+                public interface IPhoneNumber {
+                    string Label { get; set; }
+                    string Number { get; set; }
+                    int MyProperty { get; set; }
+                }
+                
+                public interface IPoint
+                {
+                   // Property signatures:
+                   int x
+                   {
+                      get;
+                      set;
+                   }
+                
+                   int y
+                   {
+                      get;
+                      set;
+                   }
+                }
+                
+                
+                public class X {
+                    public IPhoneNumber test { get; set; }
+                    public IPoint test2 { get; set; }
+                }"
+            );
+
+            var root = (CompilationUnitSyntax)tree.GetRoot();
+
+            var classCollector = new ModelCollector();
+            classCollector.Visit(root);
+
+            Assert.IsNotNull(classCollector.Models);
+            Assert.AreEqual(classCollector.Models.Count, 3);
+            Assert.AreEqual(classCollector.Models.First().Properties.Count(), 3);
         }
 
+
         [Test]
-        public void TypedInheritanceTest()
+        public void TypedInheritance_ReturnsInheritance()
         {
             const string baseClasses = "IController<Controller>";
             var tree = CSharpSyntaxTree.ParseText(@"
@@ -45,15 +89,15 @@ namespace CSharpModelsToJson.Tests
 
             var root = (CompilationUnitSyntax)tree.GetRoot();
 
-            var classCollector = new ClassCollector();
+            var classCollector = new ModelCollector();
             classCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
-            Assert.IsNotNull(classCollector.Classes);
-            Assert.AreEqual(classCollector.Classes.First().BaseClasses, baseClasses);
+            Assert.IsNotNull(classCollector.Models);
+            Assert.AreEqual(classCollector.Models.First().BaseClasses, baseClasses);
         }
         
         [Test]
-        public void AccessibilityRespected()
+        public void AccessibilityRespected_ReturnsPublicOnly()
         {
             var tree = CSharpSyntaxTree.ParseText(@"
                 public class A : IController<Controller>
@@ -73,12 +117,12 @@ namespace CSharpModelsToJson.Tests
 
             var root = (CompilationUnitSyntax)tree.GetRoot();
 
-            var classCollector = new ClassCollector();
+            var classCollector = new ModelCollector();
             classCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
-            Assert.IsNotNull(classCollector.Classes);
-            Assert.IsNotNull(classCollector.Classes.First().Properties);
-            Assert.AreEqual(classCollector.Classes.First().Properties.Count(), 1);
+            Assert.IsNotNull(classCollector.Models);
+            Assert.IsNotNull(classCollector.Models.First().Properties);
+            Assert.AreEqual(classCollector.Models.First().Properties.Count(), 1);
         }
     }
 }

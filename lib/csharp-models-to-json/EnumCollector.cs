@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
- 
+
 namespace CSharpModelsToJson
 {
     class Enum
@@ -21,7 +21,7 @@ namespace CSharpModelsToJson
                 Identifier = node.Identifier.ToString(),
                 Values = node.Members.Select(val => val.Identifier.ToString())
             };
-            
+
             this.Enums.Add(item);
         }
     }
