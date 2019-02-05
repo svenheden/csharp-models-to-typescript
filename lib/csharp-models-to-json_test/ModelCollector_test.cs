@@ -8,6 +8,14 @@ namespace CSharpModelsToJson.Tests
     [TestFixture]
     public class ModelCollectorTest
     {
+        private CSharpModelsToJsonOptions options;
+
+        [SetUp]
+        public void BeforeEach()
+        {
+            this.options = new CSharpModelsToJsonOptions();
+        }
+
         [Test]
         public void BasicInheritance_ReturnsInheritedClass()
         {
@@ -23,7 +31,7 @@ namespace CSharpModelsToJson.Tests
 
             var root = (CompilationUnitSyntax)tree.GetRoot();
 
-            var modelCollector = new ModelCollector();
+            var modelCollector = new ModelCollector(this.options);
             modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
             Assert.IsNotNull(modelCollector.Models);
@@ -65,7 +73,7 @@ namespace CSharpModelsToJson.Tests
 
             var root = (CompilationUnitSyntax)tree.GetRoot();
 
-            var modelCollector = new ModelCollector();
+            var modelCollector = new ModelCollector(this.options);
             modelCollector.Visit(root);
 
             Assert.IsNotNull(modelCollector.Models);
@@ -89,7 +97,7 @@ namespace CSharpModelsToJson.Tests
 
             var root = (CompilationUnitSyntax)tree.GetRoot();
 
-            var modelCollector = new ModelCollector();
+            var modelCollector = new ModelCollector(this.options);
             modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
             Assert.IsNotNull(modelCollector.Models);
@@ -117,12 +125,78 @@ namespace CSharpModelsToJson.Tests
 
             var root = (CompilationUnitSyntax)tree.GetRoot();
 
-            var modelCollector = new ModelCollector();
+            var modelCollector = new ModelCollector(this.options);
             modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
             Assert.IsNotNull(modelCollector.Models);
             Assert.IsNotNull(modelCollector.Models.First().Properties);
             Assert.AreEqual(modelCollector.Models.First().Properties.Count(), 1);
+        }
+
+        [Test]
+        public void JsonPropertyNameIdentifier_ReturnsAttributeValue_When_PropertyNameSyntax()
+        {
+            this.options.PropertyNameSource = PropertyNameSource.JsonProperty;
+
+            var tree = CSharpSyntaxTree.ParseText(@"
+                public class A
+                {
+                    [JsonProperty(PropertyName = ""dummy_property"")]
+                    public string DummyProperty { get; set; }
+                }"
+            );
+
+            var root = (CompilationUnitSyntax)tree.GetRoot();
+
+            var modelCollector = new ModelCollector(this.options);
+            modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
+
+            Assert.IsNotNull(modelCollector.Models);
+            Assert.AreEqual("dummy_property", modelCollector.Models.First().Properties.First().Identifier);
+        }
+
+        [Test]
+        public void JsonPropertyNameIdentifier_ReturnsAttributeValue_WhenDefaultAttributeSyntax()
+        {
+            this.options.PropertyNameSource = PropertyNameSource.JsonProperty;
+
+            var tree = CSharpSyntaxTree.ParseText(@"
+                public class A
+                {
+                    [JsonProperty(""dummy_property"")]
+                    public string DummyProperty { get; set; }
+                }"
+            );
+
+            var root = (CompilationUnitSyntax)tree.GetRoot();
+
+            var modelCollector = new ModelCollector(this.options);
+            modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
+
+            Assert.IsNotNull(modelCollector.Models);
+            Assert.AreEqual("dummy_property", modelCollector.Models.First().Properties.First().Identifier);
+        }
+
+        [Test]
+        public void DataMemberNameIdentifier_ReturnsAttributeValue_WhenNameSyntax()
+        {
+            this.options.PropertyNameSource = PropertyNameSource.DataMember;
+
+            var tree = CSharpSyntaxTree.ParseText(@"
+                public class A
+                {
+                    [DataMember(Name = ""dummy_property"")]
+                    public string DummyProperty { get; set; }
+                }"
+            );
+
+            var root = (CompilationUnitSyntax)tree.GetRoot();
+
+            var modelCollector = new ModelCollector(this.options);
+            modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
+
+            Assert.IsNotNull(modelCollector.Models);
+            Assert.AreEqual("dummy_property", modelCollector.Models.First().Properties.First().Identifier);
         }
     }
 }

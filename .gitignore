@@ -7,3 +7,4 @@ lib/csharp-models-to-json_test/bin/
 
 .vscode/*
 .idea/*
+**/.vs/*

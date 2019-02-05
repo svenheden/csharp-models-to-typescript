@@ -28,6 +28,12 @@ namespace CSharpModelsToJson
 
     public class ModelCollector : CSharpSyntaxWalker
     {
+        private readonly CSharpModelsToJsonOptions options;
+        public ModelCollector(CSharpModelsToJsonOptions options)
+        {
+            this.options = options;
+        }
+
         public readonly List<Model> Models = new List<Model>();
 
         public override void VisitClassDeclaration(ClassDeclarationSyntax node)
@@ -44,7 +50,7 @@ namespace CSharpModelsToJson
             Models.Add(model);
         }
 
-        private static Model GetModel(TypeDeclarationSyntax node)
+        private Model GetModel(TypeDeclarationSyntax node)
         {
             return new Model()
             {
@@ -59,22 +65,46 @@ namespace CSharpModelsToJson
             };
         }
 
-        private static bool IsAccessible(SyntaxTokenList modifiers) => modifiers.All(modifier =>
+        private bool IsAccessible(SyntaxTokenList modifiers) => modifiers.All(modifier =>
             modifier.ToString() != "const" &&
             modifier.ToString() != "static" &&
             modifier.ToString() != "private"
         );
 
-        private static Field ConvertField(FieldDeclarationSyntax field) => new Field
+        private Field ConvertField(FieldDeclarationSyntax field) => new Field
         {
             Identifier = field.Declaration.Variables.First().GetText().ToString(),
             Type = field.Declaration.Type.ToString(),
         };
 
-        private static Property ConvertProperty(PropertyDeclarationSyntax property) => new Property
+        private Property ConvertProperty(PropertyDeclarationSyntax property) => new Property
         {
-            Identifier = property.Identifier.ToString(),
+            Identifier = this.GetPropertyIdentifierName(property),
             Type = property.Type.ToString(),
         };
+
+        private string GetPropertyIdentifierName(PropertyDeclarationSyntax property)
+        {
+            switch (this.options.PropertyNameSource)
+            {
+                case PropertyNameSource.JsonProperty:
+                case PropertyNameSource.DataMember:
+                    return GetNameFromAttributeValue(property, this.options.PropertyNameSource.ToString());
+                case PropertyNameSource.Default:
+                default:
+                    return property.Identifier.ToString();
+            }
+        }
+
+        private static string GetNameFromAttributeValue(PropertyDeclarationSyntax property, string attributeName)
+        {
+            var jsonPropertyAttribute = property.AttributeLists.SelectMany(attribute => attribute.Attributes)
+                                    .FirstOrDefault(attribute => (attribute.Name as IdentifierNameSyntax)?.Identifier.Text ==
+                                                                 attributeName);
+            var nameValue = jsonPropertyAttribute?.ArgumentList.Arguments.First().Expression
+                .NormalizeWhitespace().ToFullString();
+            return nameValue?.Trim('"') ?? property.Identifier.ToString();
+        }
+
     }
 }

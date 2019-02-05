@@ -111,7 +111,12 @@ const createConverter = config => {
         return `    ${identifier}: ${type};`;
     };
 
-    const convertIdentifier = identifier => config.camelCase ? identifier[0].toLowerCase() + identifier.substring(1) : identifier;
+    const convertIdentifier = (identifier, config) => {
+        if (!!(config.propertySourceName) && (config.propertySourceName !== 'Default')){
+            return identifier;
+        }
+        return config.camelCase ? identifier[0].toLowerCase() + identifier.substring(1) : identifier;
+    }
     const convertType = type => type in typeTranslations ? typeTranslations[type] : type;
 
     return convert;

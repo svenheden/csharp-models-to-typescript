@@ -23,16 +23,14 @@ namespace CSharpModelsToJson
                 .AddJsonFile(args[0], true, true)
                 .Build();
 
-            List<string> includes = new List<string>();
-            List<string> excludes = new List<string>();
+            var options = new CSharpModelsToJsonOptions();
 
-            config.Bind("include", includes);
-            config.Bind("exclude", excludes);
+            config.Bind(options);
 
             List<File> files = new List<File>();
 
-            foreach (string fileName in getFileNames(includes, excludes)) {
-                files.Add(parseFile(fileName));
+            foreach (string fileName in getFileNames(options.Include, options.Exclude)) {
+                files.Add(parseFile(fileName, options));
             }
 
             string json = JsonConvert.SerializeObject(files);
@@ -67,12 +65,12 @@ namespace CSharpModelsToJson
             return fileNames;
         }
 
-        static File parseFile(string path) {
+        static File parseFile(string path, CSharpModelsToJsonOptions options) {
             string source = System.IO.File.ReadAllText(path);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(source);
             var root = (CompilationUnitSyntax) tree.GetRoot();
  
-            var modelCollector = new ModelCollector();
+            var modelCollector = new ModelCollector(options);
             var enumCollector = new EnumCollector();
 
             modelCollector.Visit(root);
