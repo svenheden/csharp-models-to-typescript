@@ -48,7 +48,7 @@ namespace CSharpModelsToJson
         {
             return new Model()
             {
-                ModelName = node.Identifier.ToString(),
+                ModelName = $"{node.Identifier.ToString()}{node.TypeParameterList?.ToString()}",
                 Fields = node.Members.OfType<FieldDeclarationSyntax>()
                                 .Where(field => IsAccessible(field.Modifiers))
                                 .Select(ConvertField),
