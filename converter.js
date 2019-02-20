@@ -110,21 +110,21 @@ const createConverter = config => {
             propType = array[1];
         }
 
-        const optional = propType.endsWith('?');
-        const simpleCollection = propType.match(simpleCollectionRegex);
         const collection = propType.match(collectionRegex);
         const dictionary = propType.match(dictionaryRegex);
-        const simpleDictionary = propType.match(simpleDictionaryRegex);
 
         let type;
         
         if (collection) {
+            const simpleCollection = propType.match(simpleCollectionRegex);
             propType = simpleCollection ? collection[1] : parseType(collection[1]);
             type = `${convertType(propType)}[]`;
         } else if (dictionary) {
+            const simpleDictionary = propType.match(simpleDictionaryRegex);
             propType = simpleDictionary ? dictionary[2] : parseType(dictionary[2]);
             type = `{ [key: ${convertType(dictionary[1])}]: ${convertType(propType)} }`;
         } else {
+            const optional = propType.endsWith('?');
             type = convertType(optional ? propType.slice(0, propType.length - 1) : propType);
         }
 
