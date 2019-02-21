@@ -2,8 +2,11 @@ const path = require('path');
 
 const flatten = arr => arr.reduce((a, b) => a.concat(b), []);
 
-const collectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|HashSet)<([\w\d]+)>\?*$/;
-const dictionaryRegex = /^I?Dictionary<([\w\d]+),\s?([\w\d]+)>\?*$/;
+const arrayRegex = /^(.+)\[\]$/;
+const simpleCollectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|HashSet)<([\w\d]+)>\??$/;
+const collectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|HashSet)<(.+)>\??$/;
+const simpleDictionaryRegex = /^I?Dictionary<([\w\d]+)\s*,\s*([\w\d]+)>\??$/;
+const dictionaryRegex = /^I?Dictionary<([\w\d]+)\s*,\s*(.+)>\??$/;
 
 const defaultTypeTranslations = {
     int: 'number',
@@ -94,21 +97,38 @@ const createConverter = config => {
 
     const convertProperty = property => {
         const optional = property.Type.endsWith('?');
-        const collection = property.Type.match(collectionRegex);
-        const dictionary = property.Type.match(dictionaryRegex);
         const identifier = convertIdentifier(optional ? `${property.Identifier.split(' ')[0]}?` : property.Identifier.split(' ')[0]);
 
-        let type;
-
-        if (collection) {
-            type = `${convertType(collection[1])}[]`;
-        } else if (dictionary) {
-            type = `{ [index: ${convertType(dictionary[1])}]: ${convertType(dictionary[2])} }`;
-        } else {
-            type = convertType(optional ? property.Type.slice(0, property.Type.length - 1) : property.Type);
-        }
+        const type = parseType(property.Type);
 
         return `    ${identifier}: ${type};`;
+    };
+
+    const parseType = propType => {
+        const array = propType.match(arrayRegex);
+        if (array) {
+            propType = array[1];
+        }
+
+        const collection = propType.match(collectionRegex);
+        const dictionary = propType.match(dictionaryRegex);
+
+        let type;
+        
+        if (collection) {
+            const simpleCollection = propType.match(simpleCollectionRegex);
+            propType = simpleCollection ? collection[1] : parseType(collection[1]);
+            type = `${convertType(propType)}[]`;
+        } else if (dictionary) {
+            const simpleDictionary = propType.match(simpleDictionaryRegex);
+            propType = simpleDictionary ? dictionary[2] : parseType(dictionary[2]);
+            type = `{ [key: ${convertType(dictionary[1])}]: ${convertType(propType)} }`;
+        } else {
+            const optional = propType.endsWith('?');
+            type = convertType(optional ? propType.slice(0, propType.length - 1) : propType);
+        }
+
+        return array ? `${type}[]` : type;
     };
 
     const convertIdentifier = identifier => config.camelCase ? identifier[0].toLowerCase() + identifier.substring(1) : identifier;
