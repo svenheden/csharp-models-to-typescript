@@ -34,6 +34,7 @@ const converter = createConverter({
     customTypeTranslations: config.customTypeTranslations || {},
     namespace: config.namespace,
     camelCase: config.camelCase || false,
+    enumKeepNumericValues: config.enumKeepNumericValues || false,
     stringLiteralTypesInsteadOfEnums: config.stringLiteralTypesInsteadOfEnums || false
 });
 
