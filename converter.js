@@ -57,6 +57,7 @@ const createConverter = config => {
 
     const convertModel = (model, filename) => {
         const rows = [];
+
         const members = [...model.Fields, ...model.Properties];
         const baseClasses = model.BaseClasses ? ` extends ${model.BaseClasses}` : '';
 
@@ -74,21 +75,30 @@ const createConverter = config => {
 
     const convertEnum = (enum_, filename) => {
         const rows = [];
-
         rows.push(`// ${filename}`);
+
+        const entries = Object.entries(enum_.Values);
 
         if (config.stringLiteralTypesInsteadOfEnums) {
             rows.push(`export type ${enum_.Identifier} =`);
-            enum_.Values.forEach((value, i) => {
-                const delimiter = (i === enum_.Values.length - 1) ? ';' : ' |';
-                rows.push(`    '${value}'${delimiter}`);
+
+            entries.forEach(([key], i) => {
+                const delimiter = (i === entries.length - 1) ? ';' : ' |';
+                rows.push(`    '${key}'${delimiter}`);
             });
+
             rows.push('');
         } else {
             rows.push(`export enum ${enum_.Identifier} {`);
-            enum_.Values.forEach(value => {
-                rows.push(`    ${value} = '${value}',`);
+
+            entries.forEach(([key, value], i) => {
+                if (config.numericEnums) {
+                    rows.push(`    ${key} = ${value != null ? value : i},`);
+                } else {
+                    rows.push(`    ${key} = '${key}',`);
+                }
             });
+
             rows.push(`}\n`);
         }
 

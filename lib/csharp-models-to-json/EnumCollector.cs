@@ -8,7 +8,7 @@ namespace CSharpModelsToJson
     class Enum
     {
         public string Identifier { get; set; }
-        public IEnumerable<string> Values { get; set; }
+        public Dictionary<string, object> Values { get; set; }
     }
 
     class EnumCollector: CSharpSyntaxWalker
@@ -17,12 +17,18 @@ namespace CSharpModelsToJson
 
         public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
         {
-            var item = new Enum() {
+            var values = new Dictionary<string, object>();
+
+            foreach (var member in node.Members) {
+                values[member.Identifier.ToString()] = member.EqualsValue != null
+                    ? member.EqualsValue.Value.ToString()
+                    : null;
+            }
+
+            this.Enums.Add(new Enum() {
                 Identifier = node.Identifier.ToString(),
-                Values = node.Members.Select(val => val.Identifier.ToString())
-            };
-            
-            this.Enums.Add(item);
+                Values = values
+            });
         }
     }
 }
