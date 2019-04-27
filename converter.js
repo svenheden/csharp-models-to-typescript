@@ -79,12 +79,16 @@ const createConverter = config => {
 
         const entries = Object.entries(enum_.Values);
 
+        const getEnumStringValue = (value) => config.camelCaseEnums
+            ? value[0].toLowerCase() + value.substring(1)
+            : value;
+
         if (config.stringLiteralTypesInsteadOfEnums) {
             rows.push(`export type ${enum_.Identifier} =`);
 
             entries.forEach(([key], i) => {
                 const delimiter = (i === entries.length - 1) ? ';' : ' |';
-                rows.push(`    '${key}'${delimiter}`);
+                rows.push(`    '${getEnumStringValue(key)}'${delimiter}`);
             });
 
             rows.push('');
@@ -95,7 +99,7 @@ const createConverter = config => {
                 if (config.numericEnums) {
                     rows.push(`    ${key} = ${value != null ? value : i},`);
                 } else {
-                    rows.push(`    ${key} = '${key}',`);
+                    rows.push(`    ${key} = '${getEnumStringValue(key)}',`);
                 }
             });
 
@@ -124,7 +128,7 @@ const createConverter = config => {
         const dictionary = propType.match(dictionaryRegex);
 
         let type;
-        
+
         if (collection) {
             const simpleCollection = propType.match(simpleCollectionRegex);
             propType = simpleCollection ? collection[1] : parseType(collection[1]);
