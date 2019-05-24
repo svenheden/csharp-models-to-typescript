@@ -28,12 +28,14 @@ try {
     return console.error(`Configuration file "${configPath}" contains invalid JSON.`);
 }
 
-const output = config.output || 'types.json';
+const output = config.output || 'types.d.ts';
 
 const converter = createConverter({
     customTypeTranslations: config.customTypeTranslations || {},
     namespace: config.namespace,
     camelCase: config.camelCase || false,
+    camelCaseEnums: config.camelCaseEnums || false,
+    numericEnums: config.numericEnums || false,
     stringLiteralTypesInsteadOfEnums: config.stringLiteralTypesInsteadOfEnums || false
 });
 

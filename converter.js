@@ -2,8 +2,11 @@ const path = require('path');
 
 const flatten = arr => arr.reduce((a, b) => a.concat(b), []);
 
-const collectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|HashSet)<([\w\d]+)>\?*$/;
-const dictionaryRegex = /^I?Dictionary<([\w\d]+),\s?([\w\d]+)>\?*$/;
+const arrayRegex = /^(.+)\[\]$/;
+const simpleCollectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|HashSet)<([\w\d]+)>\??$/;
+const collectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|HashSet)<(.+)>\??$/;
+const simpleDictionaryRegex = /^I?Dictionary<([\w\d]+)\s*,\s*([\w\d]+)>\??$/;
+const dictionaryRegex = /^I?Dictionary<([\w\d]+)\s*,\s*(.+)>\??$/;
 
 const defaultTypeTranslations = {
     int: 'number',
@@ -30,7 +33,7 @@ const createConverter = config => {
             const filename = path.relative(process.cwd(), file.FileName);
 
             const rows = flatten([
-                ...file.Classes.map(class_ => convertClass(class_, filename)),
+                ...file.Models.map(model => convertModel(model, filename)),
                 ...file.Enums.map(enum_ => convertEnum(enum_, filename)),
             ]);
 
@@ -52,14 +55,15 @@ const createConverter = config => {
         }
     };
 
-    const convertClass = (class_, filename) => {
+    const convertModel = (model, filename) => {
         const rows = [];
-        const members = [...class_.Fields, ...class_.Properties];
-        const baseClasses = class_.BaseClasses ? ` extends ${class_.BaseClasses}` : '';
+
+        const members = [...model.Fields, ...model.Properties];
+        const baseClasses = model.BaseClasses ? ` extends ${model.BaseClasses}` : '';
 
         if (members.length > 0) {
             rows.push(`// ${filename}`);
-            rows.push(`export interface ${class_.ClassName}${baseClasses} {`);
+            rows.push(`export interface ${model.ModelName}${baseClasses} {`);
             members.forEach(member => {
                 rows.push(convertProperty(member));
             });
@@ -71,21 +75,34 @@ const createConverter = config => {
 
     const convertEnum = (enum_, filename) => {
         const rows = [];
-
         rows.push(`// ${filename}`);
+
+        const entries = Object.entries(enum_.Values);
+
+        const getEnumStringValue = (value) => config.camelCaseEnums
+            ? value[0].toLowerCase() + value.substring(1)
+            : value;
 
         if (config.stringLiteralTypesInsteadOfEnums) {
             rows.push(`export type ${enum_.Identifier} =`);
-            enum_.Values.forEach((value, i) => {
-                const delimiter = (i === enum_.Values.length - 1) ? ';' : ' |';
-                rows.push(`    '${value}'${delimiter}`);
+
+            entries.forEach(([key], i) => {
+                const delimiter = (i === entries.length - 1) ? ';' : ' |';
+                rows.push(`    '${getEnumStringValue(key)}'${delimiter}`);
             });
+
             rows.push('');
         } else {
             rows.push(`export enum ${enum_.Identifier} {`);
-            enum_.Values.forEach(value => {
-                rows.push(`    ${value} = '${value}',`);
+
+            entries.forEach(([key, value], i) => {
+                if (config.numericEnums) {
+                    rows.push(`    ${key} = ${value != null ? value : i},`);
+                } else {
+                    rows.push(`    ${key} = '${getEnumStringValue(key)}',`);
+                }
             });
+
             rows.push(`}\n`);
         }
 
@@ -94,21 +111,38 @@ const createConverter = config => {
 
     const convertProperty = property => {
         const optional = property.Type.endsWith('?');
-        const collection = property.Type.match(collectionRegex);
-        const dictionary = property.Type.match(dictionaryRegex);
         const identifier = convertIdentifier(optional ? `${property.Identifier.split(' ')[0]}?` : property.Identifier.split(' ')[0]);
+
+        const type = parseType(property.Type);
+
+        return `    ${identifier}: ${type};`;
+    };
+
+    const parseType = propType => {
+        const array = propType.match(arrayRegex);
+        if (array) {
+            propType = array[1];
+        }
+
+        const collection = propType.match(collectionRegex);
+        const dictionary = propType.match(dictionaryRegex);
 
         let type;
 
         if (collection) {
-            type = `${convertType(collection[1])}[]`;
+            const simpleCollection = propType.match(simpleCollectionRegex);
+            propType = simpleCollection ? collection[1] : parseType(collection[1]);
+            type = `${convertType(propType)}[]`;
         } else if (dictionary) {
-            type = `{ [index: ${convertType(dictionary[1])}]: ${convertType(dictionary[2])} }`;
+            const simpleDictionary = propType.match(simpleDictionaryRegex);
+            propType = simpleDictionary ? dictionary[2] : parseType(dictionary[2]);
+            type = `{ [key: ${convertType(dictionary[1])}]: ${convertType(propType)} }`;
         } else {
-            type = convertType(optional ? property.Type.slice(0, property.Type.length - 1) : property.Type);
+            const optional = propType.endsWith('?');
+            type = convertType(optional ? propType.slice(0, propType.length - 1) : propType);
         }
 
-        return `    ${identifier}: ${type};`;
+        return array ? `${type}[]` : type;
     };
 
     const convertIdentifier = identifier => config.camelCase ? identifier[0].toLowerCase() + identifier.substring(1) : identifier;
