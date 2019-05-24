@@ -51,13 +51,20 @@ namespace CSharpModelsToJson
                 ModelName = $"{node.Identifier.ToString()}{node.TypeParameterList?.ToString()}",
                 Fields = node.Members.OfType<FieldDeclarationSyntax>()
                                 .Where(field => IsAccessible(field.Modifiers))
+                                .Where(property => !IsIgnored(property.AttributeLists))
                                 .Select(ConvertField),
                 Properties = node.Members.OfType<PropertyDeclarationSyntax>()
                                 .Where(property => IsAccessible(property.Modifiers))
+                                .Where(property => !IsIgnored(property.AttributeLists))
                                 .Select(ConvertProperty),
                 BaseClasses = node.BaseList?.Types.ToString(),
             };
         }
+
+        private static bool IsIgnored(SyntaxList<AttributeListSyntax> propertyAttributeLists) => 
+            propertyAttributeLists.Any(attributeList => 
+                attributeList.Attributes.Any(attribute => 
+                    attribute.Name.ToString().Equals("JsonIgnore")));
 
         private static bool IsAccessible(SyntaxTokenList modifiers) => modifiers.All(modifier =>
             modifier.ToString() != "const" &&
