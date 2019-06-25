@@ -30,6 +30,10 @@ $ npm install --save csharp-models-to-typescript
     "exclude": [
         "./models/foo/bar.cs"
     ],
+    "baseTypeExclude" : [ 
+        "TypeName", 
+        "IInterfaceName" 
+    ],
     "namespace": "Api",
     "output": "./api.d.ts",
     "camelCase": false,
@@ -53,6 +57,30 @@ $ npm install --save csharp-models-to-typescript
 
 3. Run the npm script `generate-types` and the output file specified in your config should be created and populated with your models.
 
+## Remarks
+
+The following type translations are always used:
+
+```
+defaultTypeTranslations = {
+    int: 'number',
+    double: 'number',
+    float: 'number',
+    Int32: 'number',
+    Int64: 'number',
+    short: 'number',
+    long: 'number',
+    decimal: 'number',
+    bool: 'boolean',
+    DateTime: 'string',
+    DateTimeOffset: 'string',
+    Guid: 'string',
+    dynamic: 'any',
+    object: 'any',
+};
+```
+
+Use `baseTypeExclude` to exclude for example `IEquatable` interface from being writen to the typescript file as this interface has no representation in typescript an would produce an error.
 
 ## License
 

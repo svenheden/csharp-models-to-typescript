@@ -29,6 +29,14 @@ namespace CSharpModelsToJson
     public class ModelCollector : CSharpSyntaxWalker
     {
         public readonly List<Model> Models = new List<Model>();
+        private readonly List<string> baseTypeExcludes = new List<string>();
+
+        public ModelCollector() { }
+
+        public ModelCollector(List<string> baseTypeExcludes)
+        {
+            this.baseTypeExcludes = baseTypeExcludes;
+        }
 
         public override void VisitClassDeclaration(ClassDeclarationSyntax node)
         {
@@ -44,7 +52,7 @@ namespace CSharpModelsToJson
             Models.Add(model);
         }
 
-        private static Model GetModel(TypeDeclarationSyntax node)
+        private Model GetModel(TypeDeclarationSyntax node)
         {
             return new Model()
             {
@@ -57,7 +65,7 @@ namespace CSharpModelsToJson
                                 .Where(property => IsAccessible(property.Modifiers))
                                 .Where(property => !IsIgnored(property.AttributeLists))
                                 .Select(ConvertProperty),
-                BaseClasses = node.BaseList?.Types.ToString(),
+                BaseClasses = node.BaseList == null ? null : string.Join(", ", node.BaseList.Types.Where(baseType => !baseTypeExcludes.Contains(baseType.ToString()))),
             };
         }
 

@@ -25,14 +25,16 @@ namespace CSharpModelsToJson
 
             List<string> includes = new List<string>();
             List<string> excludes = new List<string>();
+            List<string> baseTypeExcludes = new List<string>();
 
             config.Bind("include", includes);
             config.Bind("exclude", excludes);
+            config.Bind("baseTypeExclude", baseTypeExcludes);
 
             List<File> files = new List<File>();
 
             foreach (string fileName in getFileNames(includes, excludes)) {
-                files.Add(parseFile(fileName));
+                files.Add(parseFile(fileName, baseTypeExcludes));
             }
 
             string json = JsonConvert.SerializeObject(files);
@@ -67,12 +69,12 @@ namespace CSharpModelsToJson
             return fileNames;
         }
 
-        static File parseFile(string path) {
+        static File parseFile(string path, List<string> baseTypeExcludes) {
             string source = System.IO.File.ReadAllText(path);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(source);
             var root = (CompilationUnitSyntax) tree.GetRoot();
  
-            var modelCollector = new ModelCollector();
+            var modelCollector = new ModelCollector(baseTypeExcludes);
             var enumCollector = new EnumCollector();
 
             modelCollector.Visit(root);

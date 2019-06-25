@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -155,6 +156,39 @@ namespace CSharpModelsToJson.Tests
             Assert.IsNotNull(modelCollector.Models);
             Assert.IsNotNull(modelCollector.Models.First().Properties);
             Assert.AreEqual(modelCollector.Models.First().Properties.Count(), 1);
+        }
+        
+        [Test]
+        public void ConsidersBaseTypesExclueds_ReturnsNonOfTheseTypes()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+                public class A : IEquatable<A>, IComparable<A>
+                {
+                    public void AMember()
+                    {
+                        const A_Constant = 0;
+
+                        private string B { get; set }
+
+                        static string C { get; set }
+
+                        public string Included { get; set }
+
+                        [JsonIgnore]
+                        public string Ignored { get; set; }
+                    }
+                }"
+            );
+
+            var root = (CompilationUnitSyntax)tree.GetRoot();
+
+            var modelCollector = new ModelCollector(new List<string> { "IEquatable<A>" });
+            modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
+
+            Assert.IsNotNull(modelCollector.Models);
+            Assert.IsNotNull(modelCollector.Models.First().Properties);
+            Assert.AreEqual(modelCollector.Models.First().Properties.Count(), 1);
+            Assert.AreEqual(modelCollector.Models.First().BaseClasses, "IComparable<A>");
         }
     }
 }
