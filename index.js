@@ -43,7 +43,7 @@ const dotnetProject = path.join(__dirname, 'lib/csharp-models-to-json');
 
 let timer = process.hrtime();
 
-exec(`dotnet run --project "${dotnetProject}" "${path.resolve(configPath)}"`, (err, stdout) => {
+exec(`dotnet run --project "${dotnetProject}" "${path.resolve(configPath)}"`, { maxBuffer: config.maxBuffer }, (err, stdout) => {
     if (err) {
         return console.error(err);
     }
