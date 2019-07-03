@@ -56,14 +56,30 @@ exec(`dotnet run --project "${dotnetProject}" "${path.resolve(configPath)}"`, (e
         return console.error('The output from `csharp-models-to-json` contains invalid JSON.');
     }
 
-    const types = converter(json);
-
-    fs.writeFile(output, types, err => {
-        if (err) {
-            return console.error(err);
-        }
-
-        timer = process.hrtime(timer);
-        console.log('Done in %d.%d seconds.', timer[0], timer[1]);
+    json.forEach(j => {
+        let types = converter([j]);
+        let t =j.FileName.replace(/^.*[\\\/]/, '').replace(".cs", ".ts");
+            fs.writeFile(output + t, types, err => {
+            if (err) {
+                return console.error(err);
+            }
+    
+            timer = process.hrtime(timer);
+            console.log('Done in %d.%d seconds.', timer[0], timer[1]);
+        });
     });
+    // const types = converter(json);
+    // console.log(types);
+
+    // output.forEach(element => {
+    //     fs.writeFile(element, types, err => {
+    //         if (err) {
+    //             return console.error(err);
+    //         }
+    
+    //         timer = process.hrtime(timer);
+    //         console.log('Done in %d.%d seconds.', timer[0], timer[1]);
+    //     });
+    // });
+
 });
