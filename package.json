@@ -1,12 +1,12 @@
 {
   "name": "csharp-models-to-typescript",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "title": "C# models to TypeScript",
-  "author": "Jonathan Persson <persson.jonathan@gmail.com>",
+  "author": "Jonathan Svenheden <jonathan@svenheden.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jonathanp/csharp-models-to-typescript.git"
+    "url": "https://github.com/svenheden/csharp-models-to-typescript.git"
   },
   "engines": {
     "node": ">=6.0.0"

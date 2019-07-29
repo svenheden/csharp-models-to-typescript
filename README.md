@@ -56,7 +56,7 @@ $ npm install --save csharp-models-to-typescript
 
 ## License
 
-MIT © [Jonathan Persson](https://github.com/jonathanp)
+MIT © [Jonathan Svenheden](https://github.com/svenheden)
 
 [npm-image]: https://img.shields.io/npm/v/csharp-models-to-typescript.svg
 [npm-url]: https://npmjs.org/package/csharp-models-to-typescript
