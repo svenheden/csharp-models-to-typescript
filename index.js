@@ -3,7 +3,7 @@
 const fs = require('fs');
 const process = require('process');
 const path = require('path');
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 
 const createConverter = require('./converter');
 
@@ -39,21 +39,28 @@ const converter = createConverter({
     stringLiteralTypesInsteadOfEnums: config.stringLiteralTypesInsteadOfEnums || false
 });
 
-const dotnetProject = path.join(__dirname, 'lib/csharp-models-to-json');
-
 let timer = process.hrtime();
 
-exec(`dotnet run --project "${dotnetProject}" "${path.resolve(configPath)}"`, (err, stdout) => {
-    if (err) {
-        return console.error(err);
-    }
+const dotnetProject = path.join(__dirname, 'lib/csharp-models-to-json');
+const dotnetProcess = spawn('dotnet', ['run', `--project "${dotnetProject}"`, `"${path.resolve(configPath)}"`], { shell: true });
 
+let stdout = '';
+
+dotnetProcess.stdout.on('data', data => {
+    stdout += data;
+});
+
+dotnetProcess.stderr.on('data', err => {
+    console.error(err.toString());
+});
+
+dotnetProcess.stdout.on('end', () => {
     let json;
 
     try {
         json = JSON.parse(stdout);
     } catch (error) {
-        return console.error('The output from `csharp-models-to-json` contains invalid JSON.');
+        return console.error('The output from `csharp-models-to-json` contains invalid JSON.', '\n', stdout);
     }
 
     const types = converter(json);

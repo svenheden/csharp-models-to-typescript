@@ -1,6 +1,6 @@
 {
   "name": "csharp-models-to-typescript",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "title": "C# models to TypeScript",
   "author": "Jonathan Svenheden <jonathan@svenheden.com>",
   "license": "MIT",
