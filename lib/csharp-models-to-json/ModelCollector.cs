@@ -11,7 +11,7 @@ namespace CSharpModelsToJson
         public string ModelName { get; set; }
         public IEnumerable<Field> Fields { get; set; }
         public IEnumerable<Property> Properties { get; set; }
-        public string BaseClasses { get; set; }
+        public IEnumerable<string> BaseClasses { get; set; }
     }
 
     public class Field
@@ -57,7 +57,7 @@ namespace CSharpModelsToJson
                                 .Where(property => IsAccessible(property.Modifiers))
                                 .Where(property => !IsIgnored(property.AttributeLists))
                                 .Select(ConvertProperty),
-                BaseClasses = node.BaseList?.Types.ToString(),
+                BaseClasses = node.BaseList?.Types.Select(s => s.ToString()),
             };
         }
 
