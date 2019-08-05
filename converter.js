@@ -58,20 +58,31 @@ const createConverter = config => {
     const convertModel = (model, filename) => {
         const rows = [];
 
-        const members = [...model.Fields, ...model.Properties];
-        const baseClasses = model.BaseClasses ? ` extends ${model.BaseClasses}` : '';
+        if (model.BaseClasses) {
+            model.IndexSignature = model.BaseClasses.find(type => type.match(dictionaryRegex));
+            model.BaseClasses = model.BaseClasses.filter(type => !type.match(dictionaryRegex));
+        }
 
-        if (members.length > 0) {
+        const members = [...model.Fields, ...model.Properties];
+        const baseClasses = model.BaseClasses && model.BaseClasses.length ? ` extends ${model.BaseClasses.join(', ')}` : '';
+
+        if (members.length > 0 || model.IndexSignature) {
             rows.push(`// ${filename}`);
             rows.push(`export interface ${model.ModelName}${baseClasses} {`);
+
+            if (model.IndexSignature) {
+                rows.push(`    ${convertIndexType(model.IndexSignature)};`);
+            }
+
             members.forEach(member => {
-                rows.push(convertProperty(member));
+                rows.push(`    ${convertProperty(member)};`);
             });
+
             rows.push(`}\n`);
         }
 
         return rows;
-    }
+    };
 
     const convertEnum = (enum_, filename) => {
         const rows = [];
@@ -107,7 +118,7 @@ const createConverter = config => {
         }
 
         return rows;
-    }
+    };
 
     const convertProperty = property => {
         const optional = property.Type.endsWith('?');
@@ -115,7 +126,16 @@ const createConverter = config => {
 
         const type = parseType(property.Type);
 
-        return `    ${identifier}: ${type};`;
+        return `${identifier}: ${type}`;
+    };
+
+    const convertIndexType = indexType => {
+        const dictionary = indexType.match(dictionaryRegex);
+        const simpleDictionary = indexType.match(simpleDictionaryRegex);
+
+        propType = simpleDictionary ? dictionary[2] : parseType(dictionary[2]);
+
+        return `[key: ${convertType(dictionary[1])}]: ${convertType(propType)}`;
     };
 
     const parseType = propType => {
@@ -134,9 +154,7 @@ const createConverter = config => {
             propType = simpleCollection ? collection[1] : parseType(collection[1]);
             type = `${convertType(propType)}[]`;
         } else if (dictionary) {
-            const simpleDictionary = propType.match(simpleDictionaryRegex);
-            propType = simpleDictionary ? dictionary[2] : parseType(dictionary[2]);
-            type = `{ [key: ${convertType(dictionary[1])}]: ${convertType(propType)} }`;
+            type = `{ ${convertIndexType(propType)} }`;
         } else {
             const optional = propType.endsWith('?');
             type = convertType(optional ? propType.slice(0, propType.length - 1) : propType);
