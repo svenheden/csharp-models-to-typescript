@@ -60,7 +60,11 @@ dotnetProcess.stdout.on('end', () => {
     try {
         json = JSON.parse(stdout);
     } catch (error) {
-        return console.error('The output from `csharp-models-to-json` contains invalid JSON.', '\n', stdout);
+        return console.error([
+            'The output from `csharp-models-to-json` contains invalid JSON.',
+            error.message,
+            stdout
+        ].join('\n\n'));
     }
 
     const types = converter(json);
