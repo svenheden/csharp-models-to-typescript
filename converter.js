@@ -135,7 +135,7 @@ const createConverter = config => {
 
         propType = simpleDictionary ? dictionary[2] : parseType(dictionary[2]);
 
-        return `Record<${convertType(dictionary[1])}], ${convertType(propType)}>`;
+        return `Record<${convertType(dictionary[1])}, ${convertType(propType)}>`;
     };
 
     const parseType = propType => {
