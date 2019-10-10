@@ -3,10 +3,10 @@ const path = require('path');
 const flatten = arr => arr.reduce((a, b) => a.concat(b), []);
 
 const arrayRegex = /^(.+)\[\]$/;
-const simpleCollectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|HashSet)<([\w\d]+)>\??$/;
-const collectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|HashSet)<(.+)>\??$/;
-const simpleDictionaryRegex = /^(?:I?Dictionary|SortedDictionary)<([\w\d]+)\s*,\s*([\w\d]+)>\??$/;
-const dictionaryRegex = /^(?:I?Dictionary|SortedDictionary)<([\w\d]+)\s*,\s*(.+)>\??$/;
+const simpleCollectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|IReadOnlyCollection|HashSet)<([\w\d]+)>\??$/;
+const collectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|IReadOnlyCollection|HashSet)<(.+)>\??$/;
+const simpleDictionaryRegex = /^(?:I?Dictionary|SortedDictionary|IReadOnlyDictionary)<([\w\d]+)\s*,\s*([\w\d]+)>\??$/;
+const dictionaryRegex = /^(?:I?Dictionary|SortedDictionary|IReadOnlyDictionary)<([\w\d]+)\s*,\s*(.+)>\??$/;
 
 const defaultTypeTranslations = {
     int: 'number',
