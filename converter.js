@@ -66,7 +66,7 @@ const createConverter = config => {
         const members = [...model.Fields, ...model.Properties];
         const baseClasses = model.BaseClasses && model.BaseClasses.length ? ` extends ${model.BaseClasses.join(', ')}` : '';
 
-        if (members.length > 0 || model.IndexSignature) {
+        if (members.length >= 0 || model.IndexSignature) {
             rows.push(`// ${filename}`);
             rows.push(`export interface ${model.ModelName}${baseClasses} {`);
 
