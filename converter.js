@@ -71,7 +71,7 @@ const createConverter = config => {
             rows.push(`export interface ${model.ModelName}${baseClasses} {`);
 
             if (model.IndexSignature) {
-                rows.push(`    ${convertRecord(model.IndexSignature)};`);
+                rows.push(`    ${convertIndexType(model.IndexSignature)};`);
             }
 
             members.forEach(member => {
@@ -128,6 +128,15 @@ const createConverter = config => {
 
         return `${identifier}: ${type}`;
     };
+
+     const convertIndexType = indexType => {
+       const dictionary = indexType.match(dictionaryRegex);
+       const simpleDictionary = indexType.match(simpleDictionaryRegex);
+
+       propType = simpleDictionary ? dictionary[2] : parseType(dictionary[2]);
+
+       return `[key: ${convertType(dictionary[1])}]: ${convertType(propType)}`;
+     };
 
     const convertRecord = indexType => {
         const dictionary = indexType.match(dictionaryRegex);
