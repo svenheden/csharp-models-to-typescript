@@ -66,20 +66,18 @@ const createConverter = config => {
         const members = [...model.Fields, ...model.Properties];
         const baseClasses = model.BaseClasses && model.BaseClasses.length ? ` extends ${model.BaseClasses.join(', ')}` : '';
 
-        if (members.length >= 0 || model.IndexSignature) {
-            rows.push(`// ${filename}`);
-            rows.push(`export interface ${model.ModelName}${baseClasses} {`);
+        rows.push(`// ${filename}`);
+        rows.push(`export interface ${model.ModelName}${baseClasses} {`);
 
-            if (model.IndexSignature) {
-                rows.push(`    ${convertIndexType(model.IndexSignature)};`);
-            }
-
-            members.forEach(member => {
-                rows.push(`    ${convertProperty(member)};`);
-            });
-
-            rows.push(`}\n`);
+        if (model.IndexSignature) {
+            rows.push(`    ${convertIndexType(model.IndexSignature)};`);
         }
+
+        members.forEach(member => {
+            rows.push(`    ${convertProperty(member)};`);
+        });
+
+        rows.push(`}\n`);
 
         return rows;
     };
