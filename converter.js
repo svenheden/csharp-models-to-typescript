@@ -1,4 +1,5 @@
 const path = require('path');
+const camelcase = require('camelcase');
 
 const flatten = arr => arr.reduce((a, b) => a.concat(b), []);
 
@@ -89,7 +90,7 @@ const createConverter = config => {
         const entries = Object.entries(enum_.Values);
 
         const getEnumStringValue = (value) => config.camelCaseEnums
-            ? value[0].toLowerCase() + value.substring(1)
+            ? camelcase(value)
             : value;
 
         if (config.stringLiteralTypesInsteadOfEnums) {
@@ -170,7 +171,7 @@ const createConverter = config => {
         return array ? `${type}[]` : type;
     };
 
-    const convertIdentifier = identifier => config.camelCase ? identifier[0].toLowerCase() + identifier.substring(1) : identifier;
+    const convertIdentifier = identifier => config.camelCase ? camelcase(identifier) : identifier;
     const convertType = type => type in typeTranslations ? typeTranslations[type] : type;
 
     return convert;

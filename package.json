@@ -13,5 +13,8 @@
   },
   "bin": {
     "csharp-models-to-typescript": "./index.js"
+  },
+  "dependencies": {
+    "camelcase": "^6.0.0"
   }
 }
