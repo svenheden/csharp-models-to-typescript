@@ -171,7 +171,7 @@ const createConverter = config => {
         return array ? `${type}[]` : type;
     };
 
-    const convertIdentifier = identifier => config.camelCase ? camelcase(identifier) : identifier;
+    const convertIdentifier = identifier => config.camelCase ? camelcase(identifier, config.camelCaseOptions) : identifier;
     const convertType = type => type in typeTranslations ? typeTranslations[type] : type;
 
     return convert;
