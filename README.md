@@ -34,6 +34,11 @@ $ npm install --save csharp-models-to-typescript
     "output": "./api.d.ts",
     "camelCase": false,
     "camelCaseEnums": false,
+    "camelCaseOptions": {
+        "pascalCase": false
+        "preserveConsecutiveUppercase": false
+        "locale": "en-US"
+    }
     "numericEnums": false,
     "stringLiteralTypesInsteadOfEnums": false,
     "customTypeTranslations": {
