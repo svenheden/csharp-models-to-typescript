@@ -32,19 +32,39 @@ namespace CSharpModelsToJson
 
         public override void VisitClassDeclaration(ClassDeclarationSyntax node)
         {
-            var model = GetModel(node);
+            var model = CreateModel(node);
 
             Models.Add(model);
         }
 
         public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
         {
-            var model = GetModel(node);
+            var model = CreateModel(node);
 
             Models.Add(model);
         }
 
-        private static Model GetModel(TypeDeclarationSyntax node)
+        public override void VisitRecordDeclaration(RecordDeclarationSyntax node)
+        {
+            var model = new Model()
+            {
+                ModelName = $"{node.Identifier.ToString()}{node.TypeParameterList?.ToString()}",
+                Fields = node.ParameterList.Parameters
+                                .Where(field => IsAccessible(field.Modifiers))
+                                .Where(property => !IsIgnored(property.AttributeLists))
+                                .Select((field) => new Field
+                                    {
+                                        Identifier = field.Identifier.ToString(),
+                                        Type = field.Type.ToString(),
+                                    }),
+                Properties = new List<Property>(),
+                BaseClasses = new List<string>(),
+            };
+
+            Models.Add(model);
+        }
+
+        private static Model CreateModel(TypeDeclarationSyntax node)
         {
             return new Model()
             {
