@@ -35,10 +35,10 @@ $ npm install --save csharp-models-to-typescript
     "camelCase": false,
     "camelCaseEnums": false,
     "camelCaseOptions": {
-        "pascalCase": false
-        "preserveConsecutiveUppercase": false
+        "pascalCase": false,
+        "preserveConsecutiveUppercase": false,
         "locale": "en-US"
-    }
+    },
     "numericEnums": false,
     "stringLiteralTypesInsteadOfEnums": false,
     "customTypeTranslations": {
