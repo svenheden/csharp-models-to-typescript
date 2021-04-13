@@ -64,7 +64,7 @@ const createConverter = config => {
             model.BaseClasses = model.BaseClasses.filter(type => !type.match(dictionaryRegex));
         }
 
-        const members = [...model.Fields, ...model.Properties];
+        const members = [...(model.Fields || []), ...(model.Properties || [])];
         const baseClasses = model.BaseClasses && model.BaseClasses.length ? ` extends ${model.BaseClasses.join(', ')}` : '';
 
         rows.push(`// ${filename}`);

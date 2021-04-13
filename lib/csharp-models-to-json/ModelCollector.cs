@@ -49,7 +49,7 @@ namespace CSharpModelsToJson
             var model = new Model()
             {
                 ModelName = $"{node.Identifier.ToString()}{node.TypeParameterList?.ToString()}",
-                Fields = node.ParameterList.Parameters
+                Fields = node.ParameterList?.Parameters
                                 .Where(field => IsAccessible(field.Modifiers))
                                 .Where(property => !IsIgnored(property.AttributeLists))
                                 .Select((field) => new Field
@@ -57,7 +57,10 @@ namespace CSharpModelsToJson
                                         Identifier = field.Identifier.ToString(),
                                         Type = field.Type.ToString(),
                                     }),
-                Properties = new List<Property>(),
+                Properties = node.Members.OfType<PropertyDeclarationSyntax>()
+                                .Where(property => IsAccessible(property.Modifiers))
+                                .Where(property => !IsIgnored(property.AttributeLists))
+                                .Select(ConvertProperty),
                 BaseClasses = new List<string>(),
             };
 
