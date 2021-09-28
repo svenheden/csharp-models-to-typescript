@@ -63,6 +63,9 @@ const createConverter = config => {
         if (model.BaseClasses) {
             model.IndexSignature = model.BaseClasses.find(type => type.match(dictionaryRegex));
             model.BaseClasses = model.BaseClasses.filter(type => !type.match(dictionaryRegex));
+            for (let i=0; i < model.BaseClasses.length; i++) {
+                model.BaseClasses[i] = convertType(model.BaseClasses[i]);
+            }
         }
 
         const members = [...(model.Fields || []), ...(model.Properties || [])];
