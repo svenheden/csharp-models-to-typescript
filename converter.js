@@ -11,12 +11,15 @@ const dictionaryRegex = /^(?:I?Dictionary|SortedDictionary|IReadOnlyDictionary)<
 
 const defaultTypeTranslations = {
     int: 'number',
+    uint: 'number',
     double: 'number',
     float: 'number',
     Int32: 'number',
     Int64: 'number',
     short: 'number',
+    ushort: 'number',
     long: 'number',
+    ulong: 'number',
     decimal: 'number',
     bool: 'boolean',
     DateTime: 'string',
