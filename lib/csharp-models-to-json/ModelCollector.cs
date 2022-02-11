@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -12,6 +13,7 @@ namespace CSharpModelsToJson
         public IEnumerable<Field> Fields { get; set; }
         public IEnumerable<Property> Properties { get; set; }
         public IEnumerable<string> BaseClasses { get; set; }
+        public Dictionary<string, object> Enumerations { get; set; }
     }
 
     public class Field
@@ -69,6 +71,7 @@ namespace CSharpModelsToJson
 
         private static Model CreateModel(TypeDeclarationSyntax node)
         {
+            IEnumerable<string> baseClasses = node.BaseList?.Types.Select(s => s.ToString());
             return new Model()
             {
                 ModelName = $"{node.Identifier.ToString()}{node.TypeParameterList?.ToString()}",
@@ -80,7 +83,11 @@ namespace CSharpModelsToJson
                                 .Where(property => IsAccessible(property.Modifiers))
                                 .Where(property => !IsIgnored(property.AttributeLists))
                                 .Select(ConvertProperty),
-                BaseClasses = node.BaseList?.Types.Select(s => s.ToString()),
+                BaseClasses = baseClasses,
+                Enumerations = baseClasses.Contains("Enumeration")
+                                ? ConvertEnumerations(node.Members.OfType<FieldDeclarationSyntax>()
+                                    .Where(property => !IsIgnored(property.AttributeLists)))
+                                : null,
             };
         }
 
@@ -106,5 +113,22 @@ namespace CSharpModelsToJson
             Identifier = property.Identifier.ToString(),
             Type = property.Type.ToString(),
         };
+
+        private static Dictionary<string, object> ConvertEnumerations(IEnumerable<FieldDeclarationSyntax> fields)
+        {
+            var values = new Dictionary<string, object>();
+
+            foreach (FieldDeclarationSyntax field in fields)
+            {
+                VariableDeclaratorSyntax variable = field.Declaration.Variables.First();
+                List<SyntaxToken> tokens = variable.DescendantTokens().ToList();
+
+                values[variable.GetFirstToken().ToString()] = tokens.Count > 4
+                    ? tokens[4].Value
+                    : null;
+            }
+
+            return values;
+        }
     }
 }

@@ -61,8 +61,13 @@ const createConverter = config => {
     };
 
     const convertModel = (model, filename) => {
-        const rows = [];
 
+        if (model.Enumerations) {
+            return convertEnum({ Identifier: model.ModelName, Values: model.Enumerations }, filename);
+        }
+
+        const rows = [];
+        
         if (model.BaseClasses) {
             model.IndexSignature = model.BaseClasses.find(type => type.match(dictionaryRegex));
             model.BaseClasses = model.BaseClasses.filter(type => !type.match(dictionaryRegex));
