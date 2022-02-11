@@ -84,7 +84,7 @@ namespace CSharpModelsToJson
                                 .Where(property => !IsIgnored(property.AttributeLists))
                                 .Select(ConvertProperty),
                 BaseClasses = baseClasses,
-                Enumerations = baseClasses.Contains("Enumeration")
+                Enumerations = baseClasses != null && baseClasses.Contains("Enumeration")
                                 ? ConvertEnumerations(node.Members.OfType<FieldDeclarationSyntax>()
                                     .Where(property => !IsIgnored(property.AttributeLists)))
                                 : null,
