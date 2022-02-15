@@ -123,9 +123,13 @@ namespace CSharpModelsToJson
                 VariableDeclaratorSyntax variable = field.Declaration.Variables.First();
                 List<SyntaxToken> tokens = variable.DescendantTokens().ToList();
 
-                values[variable.GetFirstToken().ToString()] = tokens.Count > 4
-                    ? tokens[4].Value
-                    : null;
+                string idValue = tokens.Count > 4 ? tokens[4].Value.ToString() : null;
+                if (idValue == "id" && tokens.Count > 6)
+                {
+                    idValue = tokens[6].Value.ToString();
+                }
+
+                values[variable.GetFirstToken().ToString()] = idValue;
             }
 
             return values;
