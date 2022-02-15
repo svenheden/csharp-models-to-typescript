@@ -119,7 +119,11 @@ const createConverter = config => {
 
             entries.forEach(([key, value], i) => {
                 if (config.numericEnums) {
-                    rows.push(`    ${key} = ${value != null ? value : i},`);
+                    if (isNaN(value)) {
+                        rows.push(`    ${key} = '${value}',`);
+                    } else {
+                        rows.push(`    ${key} = ${value != null ? value : i},`);
+                    }
                 } else {
                     rows.push(`    ${key} = '${getEnumStringValue(key)}',`);
                 }
