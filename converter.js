@@ -9,8 +9,6 @@ const collectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|IReadO
 const simpleDictionaryRegex = /^(?:I?Dictionary|SortedDictionary|IReadOnlyDictionary)<([\w\d]+)\s*,\s*([\w\d]+)>\??$/;
 const dictionaryRegex = /^(?:I?Dictionary|SortedDictionary|IReadOnlyDictionary)<([\w\d]+)\s*,\s*(.+)>\??$/;
 
-const enumerationTypes = [];
-
 const defaultTypeTranslations = {
     int: 'number',
     uint: 'number',
@@ -37,12 +35,6 @@ const createConverter = config => {
 
     const convert = json => {
         const content = json.map(file => {
-
-            file.Models.find(m => {
-                if (m.Enumerations != null) {
-                    enumerationTypes.push(m.ModelName);
-                }
-            });
 
             const filename = path.relative(process.cwd(), file.FileName);
 
@@ -186,9 +178,7 @@ const createConverter = config => {
         if(propType in typeTranslations) {
             return convertType(propType);
         }
-        
-        const enumeration = enumerationTypes.includes(propType);
-        
+
         const array = propType.match(arrayRegex);
         if (array) {
             propType = array[1];
@@ -197,27 +187,21 @@ const createConverter = config => {
         const collection = propType.match(collectionRegex);
         const dictionary = propType.match(dictionaryRegex);
 
-        let type, enumerationType;
+        let type;
 
         if (collection) {
             const simpleCollection = propType.match(simpleCollectionRegex);
             propType = simpleCollection ? collection[1] : parseType(collection[1]);
             type = `${convertType(propType)}[]`;
-            enumerationType = `${convertType(propType)}_Properties[]`;
         } else if (dictionary) {
             type = `${convertRecord(propType)}`;
-            enumerationType = `${convertRecord(propType)}_Properties`;
         } else {
             const optional = propType.endsWith('?');
             type = convertType(optional ? propType.slice(0, propType.length - 1) : propType);
-            enumerationType = convertType(optional ? propType.slice(0, propType.length - 1) : propType) + '_Properties';
         }
-
-        if (enumeration) {
-            return array ? `${type}[] | ${enumerationType}` : `${type} | ${enumerationType}`;
-        } else {
-            return array ? `${type}[]` : type;
-        }
+        
+        return array ? `${type}[]` : type;
+        
     };
 
     const convertIdentifier = identifier => config.camelCase ? camelcase(identifier, config.camelCaseOptions) : identifier;
