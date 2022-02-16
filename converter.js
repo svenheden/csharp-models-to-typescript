@@ -9,6 +9,8 @@ const collectionRegex = /^(?:I?List|IReadOnlyList|IEnumerable|ICollection|IReadO
 const simpleDictionaryRegex = /^(?:I?Dictionary|SortedDictionary|IReadOnlyDictionary)<([\w\d]+)\s*,\s*([\w\d]+)>\??$/;
 const dictionaryRegex = /^(?:I?Dictionary|SortedDictionary|IReadOnlyDictionary)<([\w\d]+)\s*,\s*(.+)>\??$/;
 
+const enumerationTypes = [];
+
 const defaultTypeTranslations = {
     int: 'number',
     uint: 'number',
@@ -35,6 +37,13 @@ const createConverter = config => {
 
     const convert = json => {
         const content = json.map(file => {
+
+            file.Models.find(m => {
+                if (m.Enumerations != null) {
+                    enumerationTypes.push(m.ModelName);
+                }
+            });
+
             const filename = path.relative(process.cwd(), file.FileName);
 
             const rows = flatten([
@@ -62,12 +71,17 @@ const createConverter = config => {
 
     const convertModel = (model, filename) => {
 
+        let rows = [];
+
         if (model.Enumerations) {
-            return convertEnum({ Identifier: model.ModelName, Values: model.Enumerations }, filename);
+            rows = convertEnum({ Identifier: model.ModelName, Values: model.Enumerations }, filename);
+            model.ModelName += '_Properties';
+            if (model.BaseClasses) {
+                let enumBaseIndex = model.BaseClasses.indexOf('Enumeration');
+                model.BaseClasses.splice(enumBaseIndex, 1);
+            }
         }
 
-        const rows = [];
-        
         if (model.BaseClasses) {
             model.IndexSignature = model.BaseClasses.find(type => type.match(dictionaryRegex));
             model.BaseClasses = model.BaseClasses.filter(type => !type.match(dictionaryRegex));
@@ -82,6 +96,11 @@ const createConverter = config => {
         rows.push(`// ${filename}`);
         rows.push(`export interface ${model.ModelName}${baseClasses} {`);
 
+        if (model.Enumerations) {
+            rows.push(`    id: number;`);
+            rows.push(`    name: string;`);
+        }
+        
         if (model.IndexSignature) {
             rows.push(`    ${convertIndexType(model.IndexSignature)};`);
         }
@@ -168,6 +187,8 @@ const createConverter = config => {
             return convertType(propType);
         }
         
+        const enumeration = enumerationTypes.includes(propType);
+        
         const array = propType.match(arrayRegex);
         if (array) {
             propType = array[1];
@@ -176,20 +197,27 @@ const createConverter = config => {
         const collection = propType.match(collectionRegex);
         const dictionary = propType.match(dictionaryRegex);
 
-        let type;
+        let type, enumerationType;
 
         if (collection) {
             const simpleCollection = propType.match(simpleCollectionRegex);
             propType = simpleCollection ? collection[1] : parseType(collection[1]);
             type = `${convertType(propType)}[]`;
+            enumerationType = `${convertType(propType)}_Properties[]`;
         } else if (dictionary) {
             type = `${convertRecord(propType)}`;
+            enumerationType = `${convertRecord(propType)}_Properties`;
         } else {
             const optional = propType.endsWith('?');
             type = convertType(optional ? propType.slice(0, propType.length - 1) : propType);
+            enumerationType = convertType(optional ? propType.slice(0, propType.length - 1) : propType) + '_Properties';
         }
 
-        return array ? `${type}[]` : type;
+        if (enumeration) {
+            return array ? `${type}[] | ${enumerationType}` : `${type} | ${enumerationType}`;
+        } else {
+            return array ? `${type}[]` : type;
+        }
     };
 
     const convertIdentifier = identifier => config.camelCase ? camelcase(identifier, config.camelCaseOptions) : identifier;
