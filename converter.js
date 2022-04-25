@@ -198,6 +198,9 @@ const createConverter = config => {
         } else {
             const optional = propType.endsWith('?');
             type = convertType(optional ? propType.slice(0, propType.length - 1) : propType);
+            if (type == 'string') {
+                type = 'string | null'
+            }
         }
         
         return array ? `${type}[]` : type;
