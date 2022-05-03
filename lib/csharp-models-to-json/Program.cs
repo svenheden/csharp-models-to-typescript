@@ -1,10 +1,11 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Ganss.IO;
+using System;
 
 namespace CSharpModelsToJson
 {
@@ -29,10 +30,12 @@ namespace CSharpModelsToJson
             config.Bind("include", includes);
             config.Bind("exclude", excludes);
 
-            List<File> files = new List<File>();
+            string onlyWhenAttributed = config.GetValue<string>("onlyWhenAttributed");
+
+            List <File> files = new List<File>();
 
             foreach (string fileName in getFileNames(includes, excludes)) {
-                files.Add(parseFile(fileName));
+                files.Add(parseFile(fileName, onlyWhenAttributed));
             }
 
             string json = JsonConvert.SerializeObject(files);
@@ -57,6 +60,7 @@ namespace CSharpModelsToJson
             List<string> fileNames = new List<string>();
 
             foreach (string pattern in globPatterns) {
+
                 var paths = Glob.Expand(pattern);
 
                 foreach (var path in paths) {
@@ -67,13 +71,13 @@ namespace CSharpModelsToJson
             return fileNames;
         }
 
-        static File parseFile(string path) {
+        static File parseFile(string path, string onlyWhenAttributed) {
             string source = System.IO.File.ReadAllText(path);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(source);
             var root = (CompilationUnitSyntax) tree.GetRoot();
  
-            var modelCollector = new ModelCollector();
-            var enumCollector = new EnumCollector();
+            var modelCollector = new ModelCollector(onlyWhenAttributed);
+            var enumCollector = new EnumCollector(onlyWhenAttributed);
 
             modelCollector.Visit(root);
             enumCollector.Visit(root);

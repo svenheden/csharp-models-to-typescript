@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -31,42 +31,57 @@ namespace CSharpModelsToJson
     public class ModelCollector : CSharpSyntaxWalker
     {
         public readonly List<Model> Models = new List<Model>();
+        public readonly string IncludeAttribute = "";
+
+        public ModelCollector(string onlyWhenAttributed)
+        {
+            IncludeAttribute = onlyWhenAttributed;
+        }
 
         public override void VisitClassDeclaration(ClassDeclarationSyntax node)
         {
-            var model = CreateModel(node);
+            if (Include(node.AttributeLists, IncludeAttribute))
+            {
+                var model = CreateModel(node);
 
-            Models.Add(model);
+                Models.Add(model);
+            }
         }
 
         public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
         {
-            var model = CreateModel(node);
+            if (Include(node.AttributeLists, IncludeAttribute))
+            {
+                var model = CreateModel(node);
 
-            Models.Add(model);
+                Models.Add(model);
+            }
         }
 
         public override void VisitRecordDeclaration(RecordDeclarationSyntax node)
         {
-            var model = new Model()
+            if (Include(node.AttributeLists, IncludeAttribute))
             {
-                ModelName = $"{node.Identifier.ToString()}{node.TypeParameterList?.ToString()}",
-                Fields = node.ParameterList?.Parameters
+                var model = new Model()
+                {
+                    ModelName = $"{node.Identifier.ToString()}{node.TypeParameterList?.ToString()}",
+                    Fields = node.ParameterList?.Parameters
                                 .Where(field => IsAccessible(field.Modifiers))
                                 .Where(property => !IsIgnored(property.AttributeLists))
                                 .Select((field) => new Field
-                                    {
-                                        Identifier = field.Identifier.ToString(),
-                                        Type = field.Type.ToString(),
-                                    }),
-                Properties = node.Members.OfType<PropertyDeclarationSyntax>()
+                                {
+                                    Identifier = field.Identifier.ToString(),
+                                    Type = field.Type.ToString(),
+                                }),
+                    Properties = node.Members.OfType<PropertyDeclarationSyntax>()
                                 .Where(property => IsAccessible(property.Modifiers))
                                 .Where(property => !IsIgnored(property.AttributeLists))
                                 .Select(ConvertProperty),
-                BaseClasses = new List<string>(),
-            };
+                    BaseClasses = new List<string>(),
+                };
 
-            Models.Add(model);
+                Models.Add(model);
+            }
         }
 
         private static Model CreateModel(TypeDeclarationSyntax node)
@@ -90,6 +105,12 @@ namespace CSharpModelsToJson
                                 : null,
             };
         }
+
+        private static bool Include(SyntaxList<AttributeListSyntax> propertyAttributeLists, string includeAttribute) =>
+            string.IsNullOrEmpty(includeAttribute)
+            || propertyAttributeLists.Any(attributeList =>
+                attributeList.Attributes.Any(attribute =>
+                    attribute.Name.ToString().Equals(includeAttribute)));
 
         private static bool IsIgnored(SyntaxList<AttributeListSyntax> propertyAttributeLists) => 
             propertyAttributeLists.Any(attributeList => 
