@@ -70,12 +70,14 @@ const createConverter = config => {
         rows.push(`// ${filename}`);
         rows.push(`export interface ${model.ModelName}${baseClasses} {`);
 
+        const propertySemicolon = config.omitSemicolon ? '' : ';';
+
         if (model.IndexSignature) {
-            rows.push(`    ${convertIndexType(model.IndexSignature)};`);
+            rows.push(`    ${convertIndexType(model.IndexSignature)}${propertySemicolon}`);
         }
 
         members.forEach(member => {
-            rows.push(`    ${convertProperty(member)};`);
+            rows.push(`    ${convertProperty(member)}${propertySemicolon}`);
         });
 
         rows.push(`}\n`);
