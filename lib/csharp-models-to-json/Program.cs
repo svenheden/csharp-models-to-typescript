@@ -35,7 +35,12 @@ namespace CSharpModelsToJson
                 files.Add(parseFile(fileName));
             }
 
-            string json = JsonConvert.SerializeObject(files);
+            var serializerSettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            };
+
+            string json = JsonConvert.SerializeObject(files, Formatting.None, serializerSettings);
             System.Console.WriteLine(json);
         }
 
