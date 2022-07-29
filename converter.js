@@ -70,6 +70,9 @@ const createConverter = config => {
         if (!config.omitFilePathComment) {
             rows.push(`// ${filename}`);
         }
+        if (model.Obsolete) {
+            rows.push(formatObsoleteMessage(model.ObsoleteMessage, ''));
+        }
         rows.push(`export interface ${model.ModelName}${baseClasses} {`);
 
         const propertySemicolon = config.omitSemicolon ? '' : ';';
@@ -79,6 +82,9 @@ const createConverter = config => {
         }
 
         members.forEach(member => {
+            if (member.Obsolete) {
+                rows.push(formatObsoleteMessage(member.ObsoleteMessage, '    '));
+            }
             rows.push(`    ${convertProperty(member)}${propertySemicolon}`);
         });
 
@@ -94,6 +100,10 @@ const createConverter = config => {
         }
 
         const entries = Object.entries(enum_.Values);
+
+        if (enum_.Obsolete) {
+            rows.push(formatObsoleteMessage(enum_.ObsoleteMessage, ''));
+        }
 
         const getEnumStringValue = (value) => config.camelCaseEnums
             ? camelcase(value)
@@ -130,6 +140,21 @@ const createConverter = config => {
 
         return rows;
     };
+
+    const formatObsoleteMessage = (obsoleteMessage, identation) => {
+        if (obsoleteMessage) {
+            obsoleteMessage = ' ' + obsoleteMessage;
+        } else {
+            obsoleteMessage = '';
+        }
+
+        let deprecationMessage = '';
+        deprecationMessage += `${identation}/**\n`;
+        deprecationMessage += `${identation} * @deprecated${obsoleteMessage}\n`;
+        deprecationMessage += `${identation} */`;
+
+        return deprecationMessage;
+    }
 
     const convertProperty = property => {
         const optional = property.Type.endsWith('?');

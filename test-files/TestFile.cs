@@ -15,6 +15,7 @@ namespace TestNamespace
         /// </summary>
         public int IntProperty { get; set; }
 
+        [Obsolete("obsolete test prop")]
         public string StringProperty { get; set; }
 
         public DateTime DateTimeProperty { get; set; }

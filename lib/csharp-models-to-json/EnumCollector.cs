@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
  
@@ -8,6 +7,8 @@ namespace CSharpModelsToJson
     public class Enum
     {
         public string Identifier { get; set; }
+        public bool Obsolete { get; set; }
+        public string ObsoleteMessage { get; set; }
         public Dictionary<string, object> Values { get; set; }
     }
 
@@ -29,6 +30,8 @@ namespace CSharpModelsToJson
 
             this.Enums.Add(new Enum() {
                 Identifier = node.Identifier.ToString(),
+                Obsolete = Util.IsObsolete(node.AttributeLists),
+                ObsoleteMessage = Util.GetObsoleteMessage(node.AttributeLists),
                 Values = values
             });
         }

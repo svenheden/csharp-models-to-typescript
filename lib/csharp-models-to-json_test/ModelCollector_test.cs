@@ -174,6 +174,66 @@ namespace CSharpModelsToJson.Tests
         }
 
         [Test]
+        public void ReturnObsoleteClassInfo()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+                [Obsolete(@""test"")]
+                public class A
+                {
+                    [Obsolete(@""test prop"")]
+                    public string A { get; set }
+
+                    public string B { get; set }
+                }"
+            );
+
+            var root = (CompilationUnitSyntax)tree.GetRoot();
+
+            var modelCollector = new ModelCollector();
+            modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
+
+            var model = modelCollector.Models.First();
+
+            Assert.That(model, Is.Not.Null);
+            Assert.That(model.Properties, Is.Not.Null);
+
+            Assert.That(model.Obsolete, Is.True);
+            Assert.That(model.ObsoleteMessage, Is.EqualTo("test"));
+
+            Assert.That(model.Properties.First(x => x.Identifier.Equals("A")).Obsolete, Is.True);
+            Assert.That(model.Properties.First(x => x.Identifier.Equals("A")).ObsoleteMessage, Is.EqualTo("test prop"));
+
+            Assert.That(model.Properties.First(x => x.Identifier.Equals("B")).Obsolete, Is.False);
+            Assert.That(model.Properties.First(x => x.Identifier.Equals("B")).ObsoleteMessage, Is.Null);
+        }
+
+        [Test]
+        public void ReturnObsoleteEnumInfo()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+                [Obsolete(@""test"")]
+                public enum A
+                {
+                    A = 0,
+                    B = 1,
+                }"
+            );
+
+            var root = (CompilationUnitSyntax)tree.GetRoot();
+
+            var enumCollector = new EnumCollector();
+            enumCollector.VisitEnumDeclaration(root.DescendantNodes().OfType<EnumDeclarationSyntax>().First());
+
+            var model = enumCollector.Enums.First();
+
+            Assert.That(model, Is.Not.Null) ;
+            Assert.That(model.Values, Is.Not.Null);
+
+            Assert.That(model.Obsolete, Is.True);
+            Assert.That(model.ObsoleteMessage, Is.EqualTo("test"));
+        }
+
+        [Test]
         public void EnumBinaryValue()
         {
             var tree = CSharpSyntaxTree.ParseText(@"
