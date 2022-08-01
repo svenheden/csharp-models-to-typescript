@@ -114,20 +114,23 @@ const createConverter = config => {
         if (config.stringLiteralTypesInsteadOfEnums) {
             rows.push(`export type ${enum_.Identifier} =`);
 
-            entries.forEach(([key], i) => {
-                const delimiter = (i === entries.length - 1) ? lastValueSemicolon : ' |';
-                rows.push(`    '${getEnumStringValue(key)}'${delimiter}`);
+            entries.forEach(([i, entrie]) => {
+                const delimiter = (Number(i) === entries.length - 1) ? lastValueSemicolon : ' |';
+                rows.push(`    '${getEnumStringValue(entrie.Identifier)}'${delimiter}`);
             });
 
             rows.push('');
         } else {
             rows.push(`export enum ${enum_.Identifier} {`);
 
-            entries.forEach(([key, value], i) => {
+            entries.forEach(([i, entrie]) => {
+                if (entrie.Obsolete) {
+                    rows.push(formatObsoleteMessage(entrie.ObsoleteMessage, '    '));
+                }
                 if (config.numericEnums) {
-                    rows.push(`    ${key} = ${value != null ? value : i},`);
+                    rows.push(`    ${entrie.Identifier} = ${entrie.Value != null ? entrie.Value : i},`);
                 } else {
-                    rows.push(`    ${key} = '${getEnumStringValue(key)}',`);
+                    rows.push(`    ${entrie.Identifier} = '${getEnumStringValue(entrie.Identifier)}',`);
                 }
             });
 
