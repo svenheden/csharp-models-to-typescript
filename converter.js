@@ -95,11 +95,13 @@ const createConverter = config => {
             ? camelcase(value)
             : value;
 
+        const lastValueSemicolon = config.omitSemicolon ? '' : ';';
+
         if (config.stringLiteralTypesInsteadOfEnums) {
             rows.push(`export type ${enum_.Identifier} =`);
 
             entries.forEach(([key], i) => {
-                const delimiter = (i === entries.length - 1) ? ';' : ' |';
+                const delimiter = (i === entries.length - 1) ? lastValueSemicolon : ' |';
                 rows.push(`    '${getEnumStringValue(key)}'${delimiter}`);
             });
 
