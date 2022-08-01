@@ -123,12 +123,15 @@ const createConverter = config => {
         } else {
             rows.push(`export enum ${enum_.Identifier} {`);
 
-            entries.forEach(([key, value]) => {
+            entries.forEach(([key, entrie]) => {
+                if (entrie.Obsolete) {
+                    rows.push(formatObsoleteMessage(entrie.ObsoleteMessage, '    '));
+                }
                 if (config.numericEnums) {
-                    if (value == null) {
+                    if (entrie.Value == null) {
                         rows.push(`    ${key},`);
                     } else {
-                        rows.push(`    ${key} = ${value},`);
+                        rows.push(`    ${key} = ${entrie.Value},`);
                     }
                 } else {
                     rows.push(`    ${key} = '${getEnumStringValue(key)}',`);

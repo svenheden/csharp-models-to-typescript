@@ -32,12 +32,11 @@ namespace CSharpModelsToJson.Tests
             Assert.That(model, Is.Not.Null);
             Assert.That(model.Values, Is.Not.Null);
 
-            var values = model.Values.ToArray();
-            Assert.That(values[0].Value, Is.Null);
-            Assert.That(values[1].Value, Is.EqualTo("7"));
-            Assert.That(values[2].Value, Is.Null);
-            Assert.That(values[3].Value, Is.EqualTo("4"));
-            Assert.That(values[4].Value, Is.Null);
+            Assert.That(model.Values["A"].Value, Is.Null);
+            Assert.That(model.Values["B"].Value, Is.EqualTo("7"));
+            Assert.That(model.Values["C"].Value, Is.Null);
+            Assert.That(model.Values["D"].Value, Is.EqualTo("4"));
+            Assert.That(model.Values["E"].Value, Is.Null);
         }
     }
 }

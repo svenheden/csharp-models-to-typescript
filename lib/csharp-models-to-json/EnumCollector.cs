@@ -9,8 +9,16 @@ namespace CSharpModelsToJson
         public string Identifier { get; set; }
         public bool Obsolete { get; set; }
         public string ObsoleteMessage { get; set; }
-        public Dictionary<string, object> Values { get; set; }
+        public Dictionary<string, EnumValue> Values { get; set; }
     }
+
+    public class EnumValue
+    {
+        public string Value { get; set; }
+        public bool Obsolete { get; set; }
+        public string ObsoleteMessage { get; set; }
+    }
+
 
     public class EnumCollector: CSharpSyntaxWalker
     {
@@ -18,14 +26,21 @@ namespace CSharpModelsToJson
 
         public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
         {
-            var values = new Dictionary<string, object>();
+            var values = new Dictionary<string, EnumValue>();
 
             foreach (var member in node.Members) {
-                var value = member.EqualsValue != null
+                var equalsValue = member.EqualsValue != null
                     ? member.EqualsValue.Value.ToString()
                     : null;
 
-                values[member.Identifier.ToString()] = value?.Replace("_", "");
+                var value = new EnumValue
+                {
+                    Value = equalsValue?.Replace("_", ""),
+                    Obsolete = Util.IsObsolete(member.AttributeLists),
+                    ObsoleteMessage = Util.GetObsoleteMessage(member.AttributeLists)
+                };
+
+                values[member.Identifier.ToString()] = value;
             }
 
             this.Enums.Add(new Enum() {

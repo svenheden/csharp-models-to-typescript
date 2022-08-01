@@ -30,6 +30,7 @@ namespace TestNamespace
         D = 0b_0000_0100,   // binary: 4 in decimal
         E = 0x005,          // hexadecimal: 5 in decimal
         F = 0x000_01a,      // hexadecimal: 26 in decimal
+        [Obsolete("obsolete test enum")]
         G                   // 27 in decimal
     }
 }

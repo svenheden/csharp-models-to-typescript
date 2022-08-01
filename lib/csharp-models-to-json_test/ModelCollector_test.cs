@@ -257,12 +257,12 @@ namespace CSharpModelsToJson.Tests
             Assert.That(model, Is.Not.Null);
             Assert.That(model.Values, Is.Not.Null);
 
-            Assert.That(model.Values["A"], Is.EqualTo("1"));
-            Assert.That(model.Values["B"], Is.EqualTo("1002"));
-            Assert.That(model.Values["C"], Is.EqualTo("0b011"));
-            Assert.That(model.Values["D"], Is.EqualTo("0b00000100"));
-            Assert.That(model.Values["E"], Is.EqualTo("0x005"));
-            Assert.That(model.Values["F"], Is.EqualTo("0x00001a"));
+            Assert.That(model.Values["A"].Value, Is.EqualTo("1"));
+            Assert.That(model.Values["B"].Value, Is.EqualTo("1002"));
+            Assert.That(model.Values["C"].Value, Is.EqualTo("0b011"));
+            Assert.That(model.Values["D"].Value, Is.EqualTo("0b00000100"));
+            Assert.That(model.Values["E"].Value, Is.EqualTo("0x005"));
+            Assert.That(model.Values["F"].Value, Is.EqualTo("0x00001a"));
         }
 
     }
