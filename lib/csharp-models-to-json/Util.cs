@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CSharpModelsToJson
 {
@@ -48,11 +49,15 @@ namespace CSharpModelsToJson
 
             var summaryText = summaryElement.DescendantTokens()
                 .Where(_ => _.Kind() == SyntaxKind.XmlTextLiteralToken)
-                .Select(_ => _.Text.Trim());
+                .Select(_ => _.Text.Trim())
+                .ToList();
+                 
+            var summaryContent = summaryElement.Content.ToString();
+            summaryContent = Regex.Replace(summaryContent, @"^\s*///\s*", string.Empty, RegexOptions.Multiline);
+            summaryContent = Regex.Replace(summaryContent, "^<para>", Environment.NewLine, RegexOptions.Multiline);
+            summaryContent = Regex.Replace(summaryContent, "</para>", string.Empty);
 
-            //var text = documentComment.GetXmlTextSyntax();
-            
-            return string.Join(Environment.NewLine, summaryText).Trim();
+            return summaryContent.Trim();
         }
 
         public static DocumentationCommentTriviaSyntax GetDocumentationCommentTriviaSyntax(this SyntaxNode node)
