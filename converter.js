@@ -161,7 +161,7 @@ const createConverter = config => {
         if (extraInfo.Summary) {
             let commentLines = extraInfo.Summary.split(/\r?\n/);
             commentLines = commentLines.map((e) => {
-                return `${indentation} * ${e}\n`;
+                return `${indentation} * ${replaceCommentTags(e)}\n`;
             })
             comment += commentLines.join('');
         }
@@ -173,7 +173,7 @@ const createConverter = config => {
 
             let obsoleteMessage = '';
             if (extraInfo.ObsoleteMessage) {
-                obsoleteMessage = ' ' + extraInfo.ObsoleteMessage;
+                obsoleteMessage = ' ' + replaceCommentTags(extraInfo.ObsoleteMessage);
             }
             comment += `${indentation} * @deprecated${obsoleteMessage}\n`;
         }
@@ -181,6 +181,10 @@ const createConverter = config => {
         comment += `${indentation} */`;
 
         return comment;
+    }
+
+    const replaceCommentTags = comment => {
+        return comment.replace(/<see cref="(\w+)"\/>/gi, '{@link $1}');
     }
 
     const convertProperty = property => {
