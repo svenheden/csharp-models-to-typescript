@@ -43,6 +43,7 @@ namespace CSharpModelsToJson
             sb.AppendLine(json);
             sb.AppendLine("<<<<<<END_JSON>>>>>>");
 
+            System.Console.OutputEncoding = System.Text.Encoding.UTF8;
             System.Console.WriteLine(sb.ToString());
         }
 
