@@ -7,16 +7,14 @@ namespace CSharpModelsToJson
     public class Enum
     {
         public string Identifier { get; set; }
-        public bool Obsolete { get; set; }
-        public string ObsoleteMessage { get; set; }
+        public ExtraInfo ExtraInfo { get; set; }
         public Dictionary<string, EnumValue> Values { get; set; }
     }
 
     public class EnumValue
     {
         public string Value { get; set; }
-        public bool Obsolete { get; set; }
-        public string ObsoleteMessage { get; set; }
+        public ExtraInfo ExtraInfo { get; set; }
     }
 
 
@@ -36,8 +34,12 @@ namespace CSharpModelsToJson
                 var value = new EnumValue
                 {
                     Value = equalsValue?.Replace("_", ""),
-                    Obsolete = Util.IsObsolete(member.AttributeLists),
-                    ObsoleteMessage = Util.GetObsoleteMessage(member.AttributeLists)
+                    ExtraInfo = new ExtraInfo
+                    {
+                        Obsolete = Util.IsObsolete(member.AttributeLists),
+                        ObsoleteMessage = Util.GetObsoleteMessage(member.AttributeLists),
+                        Summary = Util.GetSummaryMessage(member),
+                    }
                 };
 
                 values[member.Identifier.ToString()] = value;
@@ -45,8 +47,12 @@ namespace CSharpModelsToJson
 
             this.Enums.Add(new Enum() {
                 Identifier = node.Identifier.ToString(),
-                Obsolete = Util.IsObsolete(node.AttributeLists),
-                ObsoleteMessage = Util.GetObsoleteMessage(node.AttributeLists),
+                ExtraInfo = new ExtraInfo
+                {
+                    Obsolete = Util.IsObsolete(node.AttributeLists),
+                    ObsoleteMessage = Util.GetObsoleteMessage(node.AttributeLists),
+                    Summary = Util.GetSummaryMessage(node),
+                },
                 Values = values
             });
         }
