@@ -41,6 +41,8 @@ namespace CSharpModelsToJson
             };
 
             string json = JsonConvert.SerializeObject(files, Formatting.None, serializerSettings);
+
+            System.Console.OutputEncoding = System.Text.Encoding.UTF8;
             System.Console.WriteLine(json);
         }
 
