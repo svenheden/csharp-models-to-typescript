@@ -39,6 +39,7 @@ namespace CSharpModelsToJson
                         Obsolete = Util.IsObsolete(member.AttributeLists),
                         ObsoleteMessage = Util.GetObsoleteMessage(member.AttributeLists),
                         Summary = Util.GetSummaryMessage(member),
+                        Remarks = Util.GetRemarksMessage(member),
                     }
                 };
 
@@ -52,6 +53,7 @@ namespace CSharpModelsToJson
                     Obsolete = Util.IsObsolete(node.AttributeLists),
                     ObsoleteMessage = Util.GetObsoleteMessage(node.AttributeLists),
                     Summary = Util.GetSummaryMessage(node),
+                    Remarks = Util.GetRemarksMessage(node),
                 },
                 Values = values
             });

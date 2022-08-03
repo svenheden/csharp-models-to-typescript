@@ -33,16 +33,26 @@ namespace CSharpModelsToJson
             return null;
         }
 
-        internal static string GetSummaryMessage(SyntaxNode @class)
+        internal static string GetSummaryMessage(SyntaxNode classItem)
         {
-            var documentComment = @class.GetDocumentationCommentTriviaSyntax();
+            return GetCommentTag(classItem, "summary");
+        }
+
+        internal static string GetRemarksMessage(SyntaxNode classItem)
+        {
+            return GetCommentTag(classItem, "remarks");
+        }
+
+        private static string GetCommentTag(SyntaxNode classItem, string xmlTag)
+        {
+            var documentComment = classItem.GetDocumentationCommentTriviaSyntax();
 
             if (documentComment == null)
                 return null;
 
             var summaryElement = documentComment.Content
                .OfType<XmlElementSyntax>()
-               .FirstOrDefault(_ => _.StartTag.Name.LocalName.Text == "summary");
+               .FirstOrDefault(_ => _.StartTag.Name.LocalName.Text == xmlTag);
 
             if (summaryElement == null)
                 return null;
@@ -51,7 +61,7 @@ namespace CSharpModelsToJson
                 .Where(_ => _.Kind() == SyntaxKind.XmlTextLiteralToken)
                 .Select(_ => _.Text.Trim())
                 .ToList();
-                 
+
             var summaryContent = summaryElement.Content.ToString();
             summaryContent = Regex.Replace(summaryContent, @"^\s*///\s*", string.Empty, RegexOptions.Multiline);
             summaryContent = Regex.Replace(summaryContent, "^<para>", Environment.NewLine, RegexOptions.Multiline);

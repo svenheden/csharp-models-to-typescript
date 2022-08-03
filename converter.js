@@ -161,6 +161,15 @@ const createConverter = config => {
             })
             comment += commentLines.join('');
         }
+        if (extraInfo.Remarks) {
+            comment += `${identation} *\n`;
+            comment += `${identation} * @remarks\n`;
+            let commentLines = extraInfo.Remarks.split(/\r?\n/);
+            commentLines = commentLines.map((e) => {
+                return `${identation} * ${replaceCommentTags(e)}\n`;
+            })
+            comment += commentLines.join('');
+        }
 
         if (extraInfo.Obsolete) {
             if (extraInfo.Summary) {
@@ -180,7 +189,7 @@ const createConverter = config => {
     }
 
     const replaceCommentTags = comment => {
-        return comment.replace(/<see cref="(\w+)"\/>/gi, '{@link $1}');
+        return comment.replace(/<see cref="(.+)"\/>/gi, '{@link $1}');
     }
 
     const convertProperty = property => {
