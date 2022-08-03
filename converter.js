@@ -195,6 +195,7 @@ const createConverter = config => {
     const replaceCommentTags = comment => {
         return comment
             .replace(/<see cref="(.+)"\/>/gi, '{@link $1}')
+            .replace(/<see cref="(.+)">(.+)<\/see>/gi, '{@link $1 | $2}')
             .replace('<inheritdoc/>', '@inheritDoc');
     }
 
