@@ -200,14 +200,14 @@ namespace CSharpModelsToJson.Tests
             Assert.That(model, Is.Not.Null);
             Assert.That(model.Properties, Is.Not.Null);
 
-            Assert.That(model.Obsolete, Is.True);
-            Assert.That(model.ObsoleteMessage, Is.EqualTo("test"));
+            Assert.That(model.ExtraInfo.Obsolete, Is.True);
+            Assert.That(model.ExtraInfo.ObsoleteMessage, Is.EqualTo("test"));
 
-            Assert.That(model.Properties.First(x => x.Identifier.Equals("A")).Obsolete, Is.True);
-            Assert.That(model.Properties.First(x => x.Identifier.Equals("A")).ObsoleteMessage, Is.EqualTo("test prop"));
+            Assert.That(model.Properties.First(x => x.Identifier.Equals("A")).ExtraInfo.Obsolete, Is.True);
+            Assert.That(model.Properties.First(x => x.Identifier.Equals("A")).ExtraInfo.ObsoleteMessage, Is.EqualTo("test prop"));
 
-            Assert.That(model.Properties.First(x => x.Identifier.Equals("B")).Obsolete, Is.False);
-            Assert.That(model.Properties.First(x => x.Identifier.Equals("B")).ObsoleteMessage, Is.Null);
+            Assert.That(model.Properties.First(x => x.Identifier.Equals("B")).ExtraInfo.Obsolete, Is.False);
+            Assert.That(model.Properties.First(x => x.Identifier.Equals("B")).ExtraInfo.ObsoleteMessage, Is.Null);
         }
 
         [Test]
@@ -232,8 +232,8 @@ namespace CSharpModelsToJson.Tests
             Assert.That(model, Is.Not.Null) ;
             Assert.That(model.Values, Is.Not.Null);
 
-            Assert.That(model.Obsolete, Is.True);
-            Assert.That(model.ObsoleteMessage, Is.EqualTo("test"));
+            Assert.That(model.ExtraInfo.Obsolete, Is.True);
+            Assert.That(model.ExtraInfo.ObsoleteMessage, Is.EqualTo("test"));
         }
 
         [Test]
