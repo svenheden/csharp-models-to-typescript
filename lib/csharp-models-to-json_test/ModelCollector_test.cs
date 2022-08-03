@@ -196,14 +196,14 @@ namespace CSharpModelsToJson.Tests
             Assert.IsNotNull(model);
             Assert.IsNotNull(model.Properties);
 
-            Assert.IsTrue(model.Obsolete);
-            Assert.AreEqual("test", model.ObsoleteMessage);
+            Assert.IsTrue(model.ExtraInfo.Obsolete);
+            Assert.AreEqual("test", model.ExtraInfo.ObsoleteMessage);
 
-            Assert.IsTrue(model.Properties.First(x => x.Identifier.Equals("A")).Obsolete);
-            Assert.AreEqual("test prop", model.Properties.First(x => x.Identifier.Equals("A")).ObsoleteMessage);
+            Assert.IsTrue(model.Properties.First(x => x.Identifier.Equals("A")).ExtraInfo.Obsolete);
+            Assert.AreEqual("test prop", model.Properties.First(x => x.Identifier.Equals("A")).ExtraInfo.ObsoleteMessage);
 
-            Assert.IsFalse(model.Properties.First(x => x.Identifier.Equals("B")).Obsolete);
-            Assert.IsNull(model.Properties.First(x => x.Identifier.Equals("B")).ObsoleteMessage);
+            Assert.IsFalse(model.Properties.First(x => x.Identifier.Equals("B")).ExtraInfo.Obsolete);
+            Assert.IsNull(model.Properties.First(x => x.Identifier.Equals("B")).ExtraInfo.ObsoleteMessage);
         }
 
         [Test]
@@ -228,8 +228,8 @@ namespace CSharpModelsToJson.Tests
             Assert.IsNotNull(model);
             Assert.IsNotNull(model.Values);
 
-            Assert.IsTrue(model.Obsolete);
-            Assert.AreEqual("test", model.ObsoleteMessage);
+            Assert.IsTrue(model.ExtraInfo.Obsolete);
+            Assert.AreEqual("test", model.ExtraInfo.ObsoleteMessage);
         }
     }
 }
