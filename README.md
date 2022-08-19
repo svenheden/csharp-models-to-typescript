@@ -40,6 +40,7 @@ $ npm install --save csharp-models-to-typescript
         "locale": "en-US"
     },
     "numericEnums": false,
+    "omitFilePathComment": false,
     "omitSemicolon": false,
     "stringLiteralTypesInsteadOfEnums": false,
     "customTypeTranslations": {

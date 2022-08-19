@@ -67,7 +67,9 @@ const createConverter = config => {
         const members = [...(model.Fields || []), ...(model.Properties || [])];
         const baseClasses = model.BaseClasses && model.BaseClasses.length ? ` extends ${model.BaseClasses.join(', ')}` : '';
 
-        rows.push(`// ${filename}`);
+        if (!config.omitFilePathComment) {
+            rows.push(`// ${filename}`);
+        }
         rows.push(`export interface ${model.ModelName}${baseClasses} {`);
 
         const propertySemicolon = config.omitSemicolon ? '' : ';';
@@ -87,7 +89,9 @@ const createConverter = config => {
 
     const convertEnum = (enum_, filename) => {
         const rows = [];
-        rows.push(`// ${filename}`);
+        if (!config.omitFilePathComment) {
+            rows.push(`// ${filename}`);
+        }
 
         const entries = Object.entries(enum_.Values);
 
