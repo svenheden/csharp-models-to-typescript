@@ -24,6 +24,7 @@ const defaultTypeTranslations = {
     Guid: 'string',
     dynamic: 'any',
     object: 'any',
+    byte[]: 'string'
 };
 
 const createConverter = config => {
