@@ -1,5 +1,6 @@
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
+using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitHub;
 using Nuke.Common.Tools.GitVersion;
@@ -62,7 +63,10 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
-            DotNetTasks.DotNetTest(t => t);
+            DotNetTasks.DotNetTest(t =>
+                t.EnableNoBuild()
+                    .SetNoRestore(true)
+            );
         });
 
     static readonly string PublishFolder = RootDirectory / "publish";
