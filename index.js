@@ -43,7 +43,7 @@ const converter = createConverter({
 
 let timer = process.hrtime();
 
-const dotnetProject = path.join(__dirname, 'lib/csharp-models-to-json');
+const dotnetProject = path.join(__dirname, 'publish');
 const dotnetProcess = spawn('dotnet', ['run', `--project "${dotnetProject}"`, `"${path.resolve(configPath)}"`], { shell: true });
 
 let stdout = '';
