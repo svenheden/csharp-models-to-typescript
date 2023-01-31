@@ -1,8 +1,19 @@
 using Nuke.Common;
+using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.GitHub;
 using Nuke.Common.Tools.GitVersion;
 using Serilog;
 
+[GitHubActions(
+    nameof(Build),
+    GitHubActionsImage.UbuntuLatest,
+    FetchDepth = 0,
+    On = new[] { GitHubActionsTrigger.Push },
+    InvokedTargets = new[] { nameof(Publish) },
+    PublishArtifacts = true,
+    EnableGitHubToken = true
+)]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
@@ -33,24 +44,37 @@ class Build : NukeBuild
     Target Restore => _ => _
         .Executes(() =>
         {
+            DotNetTasks.DotNetRestore();
         });
 
     Target Compile => _ => _
         .DependsOn(Restore)
         .Executes(() =>
         {
-            DotNetTasks.DotNetBuild();
+            DotNetTasks.DotNetBuild(b =>
+                b.SetNoRestore(true)
+            );
         });
 
-    static readonly string publishFolder = RootDirectory / "publish";
+    static readonly string ResultsDirectory = RootDirectory / "results";
+
+    Target Test => _ => _
+        .DependsOn(Compile)
+        .Executes(() =>
+        {
+            DotNetTasks.DotNetTest(t => t);
+        });
+
+    static readonly string PublishFolder = RootDirectory / "publish";
 
     Target Publish => _ => _
         .DependsOn(Compile)
+        .DependsOn(Test)
         .DependsOn(GetSemVer)
         .Executes(() =>
         {
             DotNetTasks.DotNetPublish(s =>
-                s.SetOutput(publishFolder)
+                s.SetOutput(PublishFolder)
                     .SetAssemblyVersion(GitVersion.AssemblySemVer)
             );
         });
