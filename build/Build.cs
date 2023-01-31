@@ -98,10 +98,21 @@ class Build : NukeBuild
 
 
     static readonly AbsolutePath DistFolder = RootDirectory / "dist";
+    static readonly AbsolutePath ReleaseFolder = RootDirectory / "release";
+
+    Target NpmRelease => _ => _
+        .DependsOn(NpmPack)
+        .Produces(ReleaseFolder)
+        .Executes(() =>
+        {
+            Directory.CreateDirectory(ReleaseFolder);
+            var releasePackage = Directory.GetFiles(DistFolder).Where(d => d.EndsWith(".tgz"))
+                .ToList();
+            releasePackage.ForEach(f => CopyFile(f, ReleaseFolder));
+        });
 
     Target NpmPack => _ => _
         .DependsOn(Publish)
-        .Produces(DistFolder / "*.tgz")
         .Executes(() =>
         {
             DirectoryHelper.TryDeleteFolder(DistFolder);
@@ -122,7 +133,8 @@ class Build : NukeBuild
         });
 
     void CopyFileToDist(string fileName) =>
-        CopyFile(fileName, DistFolder + Path.DirectorySeparatorChar + Path.GetFileName(fileName));
+        CopyFile(fileName, DistFolder);
 
-    void CopyFile(string fileName, string targetFolder) => File.Copy(fileName, targetFolder);
+    void CopyFile(string fileName, string targetFolder) => File.Copy(fileName,
+        targetFolder + Path.DirectorySeparatorChar + Path.GetFileName(fileName));
 }
