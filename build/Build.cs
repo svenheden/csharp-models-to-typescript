@@ -30,8 +30,6 @@ class Build : NukeBuild
 
     [GitVersion] readonly GitVersion GitVersion;
 
-    readonly GitHubActionsTestLogger.TestLogger GihubActionsTestLogger;
-
     Target GetSemVer => _ => _
         .Executes(() =>
         {
