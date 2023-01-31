@@ -1,8 +1,9 @@
+using GithubActionsLogger;
+using Microsoft.Build.Construction;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
-using Nuke.Common.Tools.GitHub;
 using Nuke.Common.Tools.GitVersion;
 using Serilog;
 
@@ -29,6 +30,7 @@ class Build : NukeBuild
 
     [GitVersion] readonly GitVersion GitVersion;
 
+    readonly GitHubActionsTestLogger.TestLogger GihubActionsTestLogger;
 
     Target GetSemVer => _ => _
         .Executes(() =>
@@ -63,9 +65,12 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
-            DotNetTasks.DotNetTest(t =>
-                t.EnableNoBuild()
+            DotNetTasks.DotNetTest(_ =>
+                _.EnableNoBuild()
                     .SetNoRestore(true)
+                    .When(IsServerBuild, _ => _
+                        .AddGithubActionsLogger(ResultsDirectory)
+                    )
             );
         });
 
