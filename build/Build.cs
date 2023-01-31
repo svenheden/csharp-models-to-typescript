@@ -1,10 +1,15 @@
+using System.IO;
+using System.Linq;
+using Directories;
 using GithubActionsLogger;
-using Microsoft.Build.Construction;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
+using Nuke.Common.IO;
+using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
+using Nuke.Common.Tools.Npm;
 using Serilog;
 
 [GitHubActions(
@@ -29,6 +34,7 @@ class Build : NukeBuild
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     [GitVersion] readonly GitVersion GitVersion;
+    [Solution] Solution Solution;
 
     Target GetSemVer => _ => _
         .Executes(() =>
@@ -36,10 +42,10 @@ class Build : NukeBuild
             Log.Information("GitVersion = {Value}", GitVersion.AssemblySemVer);
         });
 
-    Target Clean => _ => _
-        .Before(Restore)
+    Target EnsureCleanPublishDirectory => _ => _
         .Executes(() =>
         {
+            DirectoryHelper.TryDeleteFolder(PublishFolder);
         });
 
     Target Restore => _ => _
@@ -75,14 +81,48 @@ class Build : NukeBuild
     static readonly string PublishFolder = RootDirectory / "publish";
 
     Target Publish => _ => _
-        .DependsOn(Compile)
+        .DependsOn(EnsureCleanPublishDirectory)
         .DependsOn(Test)
+        .DependsOn(Compile)
         .DependsOn(GetSemVer)
+        .Triggers(NpmPack)
         .Executes(() =>
         {
-            DotNetTasks.DotNetPublish(s =>
-                s.SetOutput(PublishFolder)
+            var project = Solution.GetProject("csharp-models-to-json");
+            DotNetTasks.DotNetPublish(_ =>
+                _.SetProject(project)
+                    .SetOutput(PublishFolder)
                     .SetAssemblyVersion(GitVersion.AssemblySemVer)
             );
         });
+
+
+    static readonly AbsolutePath DistFolder = RootDirectory / "dist";
+
+    Target NpmPack => _ => _
+        .DependsOn(Publish)
+        .Produces(DistFolder / "*.tgz")
+        .Executes(() =>
+        {
+            DirectoryHelper.TryDeleteFolder(DistFolder);
+            Directory.CreateDirectory(DistFolder);
+            CopyFileToDist("package.json");
+            var jsFiles = Directory.GetFiles(RootDirectory)
+                .Where(d => d.EndsWith(".js"))
+                .ToList();
+            jsFiles.ForEach(CopyFileToDist);
+            DirectoryHelper.CopyDirectory(PublishFolder,
+                DistFolder +
+                Path.DirectorySeparatorChar +
+                Path.GetRelativePath(RootDirectory, DistFolder),
+                true);
+
+            NpmTasks.Npm($"version {GitVersion.FullSemVer} --allow-same-version", DistFolder);
+            NpmTasks.Npm($"pack {DistFolder} --loglevel=warn", RootDirectory);
+        });
+
+    void CopyFileToDist(string fileName) =>
+        CopyFile(fileName, DistFolder + Path.DirectorySeparatorChar + Path.GetFileName(fileName));
+
+    void CopyFile(string fileName, string targetFolder) => File.Copy(fileName, targetFolder);
 }
