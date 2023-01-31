@@ -52,8 +52,8 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
-            DotNetTasks.DotNetBuild(b =>
-                b.SetNoRestore(true)
+            DotNetTasks.DotNetBuild(_ =>
+                _.SetNoRestore(true)
             );
         });
 
