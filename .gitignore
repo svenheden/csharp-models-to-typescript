@@ -6,6 +6,7 @@ lib/csharp-models-to-json_test/obj/
 lib/csharp-models-to-json_test/bin/
 
 publish
+dist
 .vscode/*
 .idea/*
 # Common IntelliJ Platform excludes
