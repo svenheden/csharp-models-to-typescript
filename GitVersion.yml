@@ -1,0 +1,6 @@
+assembly-informational-format: '{FullSemVer}'
+mode: Mainline
+branches: {}
+ignore:
+  sha: []
+merge-message-formats: {}
