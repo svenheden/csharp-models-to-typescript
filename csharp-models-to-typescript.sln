@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharp-models-to-json", "lib\csharp-models-to-json\csharp-models-to-json.csproj", "{8A559E76-7E7B-40E2-901C-2E910CFDC6C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharp-models-to-json_test", "lib\csharp-models-to-json_test\csharp-models-to-json_test.csproj", "{2D8B1314-8700-4F22-A23C-B6D3B173A898}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{44AA6E71-111E-47B6-BB63-DEACB6D6602D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44AA6E71-111E-47B6-BB63-DEACB6D6602D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44AA6E71-111E-47B6-BB63-DEACB6D6602D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A559E76-7E7B-40E2-901C-2E910CFDC6C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A559E76-7E7B-40E2-901C-2E910CFDC6C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A559E76-7E7B-40E2-901C-2E910CFDC6C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A559E76-7E7B-40E2-901C-2E910CFDC6C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D8B1314-8700-4F22-A23C-B6D3B173A898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D8B1314-8700-4F22-A23C-B6D3B173A898}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D8B1314-8700-4F22-A23C-B6D3B173A898}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D8B1314-8700-4F22-A23C-B6D3B173A898}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
