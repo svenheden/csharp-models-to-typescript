@@ -109,6 +109,7 @@ class Build : NukeBuild
             var releasePackage = Directory.GetFiles(DistFolder).Where(d => d.EndsWith(".tgz"))
                 .ToList();
             releasePackage.ForEach(f => CopyFile(f, ReleaseFolder));
+            // push to npm
         });
 
     Target NpmPack => _ => _
