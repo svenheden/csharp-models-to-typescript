@@ -181,10 +181,10 @@ const createConverter = config => {
     }
     const lowerFirstLetters = str => {
         let i = 0;
-        while (i < str.length && str[i].toUpperCase() === str[i] && str[i] !== "_") {
+        while (i < str.length && str[i].toLowerCase() !== str[i] && str[i] !== "_") {
           i++;
         }
-        if(i>1) 
+        if(i>1 && str.length !==i) 
             i = i-1; // if it has only one upper letter, it will be lowered, but if it has more than one upper letter, the last one may be start of another string
         return str.slice(0, i).toLowerCase() + str.slice(i);
     }
