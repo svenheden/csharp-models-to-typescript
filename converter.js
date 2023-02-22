@@ -125,7 +125,7 @@ const createConverter = config => {
 
     const convertProperty = property => {
         const optional = property.Type.endsWith('?');
-        const identifier = convertIdentifier(optional ? `${property.Identifier.split(' ')[0]}?` : property.Identifier.split(' ')[0]);
+        const identifier = convertIdentifier(optional ? `${property.Identifier.split(/[ =]+/)[0]}?` : property.Identifier.split(/[ =]+/)[0]);
 
         const type = parseType(property.Type);
 
@@ -175,7 +175,16 @@ const createConverter = config => {
         return array ? `${type}[]` : type;
     };
 
-    const convertIdentifier = identifier => config.camelCase ? camelcase(identifier, config.camelCaseOptions) : identifier;
+    const convertIdentifier = identifier => {
+        identifier = config.lowerFirstLetter ? lowerFirstLetter(identifier) : identifier;
+        return config.camelCase ? camelcase(identifier, config.camelCaseOptions) : identifier;
+    }
+    const lowerFirstLetter = str => {
+        if(str.length===1) return str.toLowerCase();
+        if(str[0].toUpperCase()===str[0] && str[1].toLowerCase() ===str[1])
+            return str.slice(0, 1).toLowerCase() + str.slice(1);
+        return str;
+    }
     const convertType = type => type in typeTranslations ? typeTranslations[type] : type;
 
     return convert;
