@@ -33,7 +33,7 @@ $ npm install --save csharp-models-to-typescript
     "namespace": "Api",
     "output": "./api.d.ts",
     "camelCase": false,
-    "lowerFirstLetter": false,
+    "lowerFirstLetters": false,
     "camelCaseEnums": false,
     "camelCaseOptions": {
         "pascalCase": false,
@@ -67,7 +67,7 @@ $ npm install --save csharp-models-to-typescript
 **namespace** is the namespace for the generated files
 **include** are the locations for the input files
 **exclude** are files that are excluded
-**lowerFirstLetter** lowers the first letter of attributes, if they are starting with an upper letter and continues with a lower one.
+**lowerFirstLetters** lowers the first letters of attributes. ID => id MYLocation => myLocation
 
 
 

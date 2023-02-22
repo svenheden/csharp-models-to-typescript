@@ -176,14 +176,17 @@ const createConverter = config => {
     };
 
     const convertIdentifier = identifier => {
-        identifier = config.lowerFirstLetter ? lowerFirstLetter(identifier) : identifier;
+        identifier = config.lowerFirstLetters ? lowerFirstLetters(identifier) : identifier;
         return config.camelCase ? camelcase(identifier, config.camelCaseOptions) : identifier;
     }
-    const lowerFirstLetter = str => {
-        if(str.length===1) return str.toLowerCase();
-        if(str[0].toUpperCase()===str[0] && str[1].toLowerCase() ===str[1])
-            return str.slice(0, 1).toLowerCase() + str.slice(1);
-        return str;
+    const lowerFirstLetters = str => {
+        let i = 0;
+        while (i < str.length && str[i].toUpperCase() === str[i] && str[i] !== "_") {
+          i++;
+        }
+        if(i>1) 
+            i = i-1; // if it has only one upper letter, it will be lowered, but if it has more than one upper letter, the last one may be start of another string
+        return str.slice(0, i).toLowerCase() + str.slice(i);
     }
     const convertType = type => type in typeTranslations ? typeTranslations[type] : type;
 

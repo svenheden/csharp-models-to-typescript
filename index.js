@@ -33,7 +33,7 @@ const output = config.output || 'types.d.ts';
 const converter = createConverter({
     customTypeTranslations: config.customTypeTranslations || {},
     namespace: config.namespace,
-    lowerFirstLetter: config.lowerFirstLetter,
+    lowerFirstLetters: config.lowerFirstLetters,
     camelCase: config.camelCase || false,
     camelCaseOptions: config.camelCaseOptions || {},
     camelCaseEnums: config.camelCaseEnums || false,
