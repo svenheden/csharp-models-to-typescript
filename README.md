@@ -41,6 +41,7 @@ $ npm install --save csharp-models-to-typescript
     },
     "numericEnums": false,
     "omitFilePathComment": false,
+    "omitSemicolon": false,
     "stringLiteralTypesInsteadOfEnums": false,
     "customTypeTranslations": {
         "ProductName": "string",

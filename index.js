@@ -38,6 +38,7 @@ const converter = createConverter({
     camelCaseEnums: config.camelCaseEnums || false,
     numericEnums: config.numericEnums || false,
     omitFilePathComment: config.omitFilePathComment || false,
+    omitSemicolon: config.omitSemicolon || false,
     stringLiteralTypesInsteadOfEnums: config.stringLiteralTypesInsteadOfEnums || false
 });
 

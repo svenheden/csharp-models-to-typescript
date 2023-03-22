@@ -72,12 +72,14 @@ const createConverter = config => {
         }
         rows.push(`export interface ${model.ModelName}${baseClasses} {`);
 
+        const propertySemicolon = config.omitSemicolon ? '' : ';';
+
         if (model.IndexSignature) {
-            rows.push(`    ${convertIndexType(model.IndexSignature)};`);
+            rows.push(`    ${convertIndexType(model.IndexSignature)}${propertySemicolon}`);
         }
 
         members.forEach(member => {
-            rows.push(`    ${convertProperty(member)};`);
+            rows.push(`    ${convertProperty(member)}${propertySemicolon}`);
         });
 
         rows.push(`}\n`);
@@ -97,11 +99,13 @@ const createConverter = config => {
             ? camelcase(value)
             : value;
 
+        const lastValueSemicolon = config.omitSemicolon ? '' : ';';
+
         if (config.stringLiteralTypesInsteadOfEnums) {
             rows.push(`export type ${enum_.Identifier} =`);
 
             entries.forEach(([key], i) => {
-                const delimiter = (i === entries.length - 1) ? ';' : ' |';
+                const delimiter = (i === entries.length - 1) ? lastValueSemicolon : ' |';
                 rows.push(`    '${getEnumStringValue(key)}'${delimiter}`);
             });
 
