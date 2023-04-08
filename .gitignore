@@ -7,3 +7,5 @@ lib/csharp-models-to-json_test/bin/
 
 .vscode/*
 .idea/*
+/.vs
+/lib/csharp-models-to-json/.vs/csharp-models-to-json/FileContentIndex
