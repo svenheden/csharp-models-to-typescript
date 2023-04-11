@@ -155,6 +155,10 @@ const createConverter = config => {
     };
 
     const parseType = propType => {
+        if(propType in typeTranslations) {
+            return convertType(propType);
+        }
+
         const array = propType.match(arrayRegex);
         if (array) {
             propType = array[1];
