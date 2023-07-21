@@ -70,6 +70,9 @@ const createConverter = config => {
         if (!config.omitFilePathComment) {
             rows.push(`// ${filename}`);
         }
+        if (model.Obsolete) {
+            rows.push(formatObsoleteMessage(model.ObsoleteMessage, ''));
+        }
         rows.push(`export interface ${model.ModelName}${baseClasses} {`);
 
         const propertySemicolon = config.omitSemicolon ? '' : ';';
@@ -79,6 +82,9 @@ const createConverter = config => {
         }
 
         members.forEach(member => {
+            if (member.Obsolete) {
+                rows.push(formatObsoleteMessage(member.ObsoleteMessage, '    '));
+            }
             rows.push(`    ${convertProperty(member)}${propertySemicolon}`);
         });
 
@@ -95,6 +101,10 @@ const createConverter = config => {
 
         const entries = Object.entries(enum_.Values);
 
+        if (enum_.Obsolete) {
+            rows.push(formatObsoleteMessage(enum_.ObsoleteMessage, ''));
+        }
+
         const getEnumStringValue = (value) => config.camelCaseEnums
             ? camelcase(value)
             : value;
@@ -104,20 +114,23 @@ const createConverter = config => {
         if (config.stringLiteralTypesInsteadOfEnums) {
             rows.push(`export type ${enum_.Identifier} =`);
 
-            entries.forEach(([key], i) => {
-                const delimiter = (i === entries.length - 1) ? lastValueSemicolon : ' |';
-                rows.push(`    '${getEnumStringValue(key)}'${delimiter}`);
+            entries.forEach(([i, entrie]) => {
+                const delimiter = (Number(i) === entries.length - 1) ? lastValueSemicolon : ' |';
+                rows.push(`    '${getEnumStringValue(entrie.Identifier)}'${delimiter}`);
             });
 
             rows.push('');
         } else {
             rows.push(`export enum ${enum_.Identifier} {`);
 
-            entries.forEach(([key, value], i) => {
+            entries.forEach(([i, entrie]) => {
+                if (entrie.Obsolete) {
+                    rows.push(formatObsoleteMessage(entrie.ObsoleteMessage, '    '));
+                }
                 if (config.numericEnums) {
-                    rows.push(`    ${key} = ${value != null ? value : i},`);
+                    rows.push(`    ${entrie.Identifier} = ${entrie.Value != null ? entrie.Value : i},`);
                 } else {
-                    rows.push(`    ${key} = '${getEnumStringValue(key)}',`);
+                    rows.push(`    ${entrie.Identifier} = '${getEnumStringValue(entrie.Identifier)}',`);
                 }
             });
 
@@ -126,6 +139,21 @@ const createConverter = config => {
 
         return rows;
     };
+
+    const formatObsoleteMessage = (obsoleteMessage, identation) => {
+        if (obsoleteMessage) {
+            obsoleteMessage = ' ' + obsoleteMessage;
+        } else {
+            obsoleteMessage = '';
+        }
+
+        let deprecationMessage = '';
+        deprecationMessage += `${identation}/**\n`;
+        deprecationMessage += `${identation} * @deprecated${obsoleteMessage}\n`;
+        deprecationMessage += `${identation} */`;
+
+        return deprecationMessage;
+    }
 
     const convertProperty = property => {
         const optional = property.Type.endsWith('?');

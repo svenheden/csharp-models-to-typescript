@@ -1,32 +1,52 @@
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
  
 namespace CSharpModelsToJson
 {
-    class Enum
+    public class Enum
     {
         public string Identifier { get; set; }
-        public Dictionary<string, object> Values { get; set; }
+        public bool Obsolete { get; set; }
+        public string ObsoleteMessage { get; set; }
+        public IEnumerable<EnumValue> Values { get; set; }
     }
 
-    class EnumCollector: CSharpSyntaxWalker
+    public class EnumValue
+    {
+        public string Identifier { get; set; }
+        public string Value { get; set; }
+        public bool Obsolete { get; set; }
+        public string ObsoleteMessage { get; set; }
+    }
+
+
+    public class EnumCollector: CSharpSyntaxWalker
     {
         public readonly List<Enum> Enums = new List<Enum>();
 
         public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
         {
-            var values = new Dictionary<string, object>();
+            var values = new List<EnumValue>();
 
             foreach (var member in node.Members) {
-                values[member.Identifier.ToString()] = member.EqualsValue != null
-                    ? member.EqualsValue.Value.ToString()
-                    : null;
+                var value = new EnumValue
+                {
+                    Identifier = member.Identifier.ToString(),
+                    Value = member.EqualsValue != null
+                        ? member.EqualsValue.Value.ToString()
+                        : null,
+                    Obsolete = Util.IsObsolete(member.AttributeLists),
+                    ObsoleteMessage = Util.GetObsoleteMessage(member.AttributeLists)
+                };
+
+                values.Add(value);
             }
 
             this.Enums.Add(new Enum() {
                 Identifier = node.Identifier.ToString(),
+                Obsolete = Util.IsObsolete(node.AttributeLists),
+                ObsoleteMessage = Util.GetObsoleteMessage(node.AttributeLists),
                 Values = values
             });
         }
