@@ -171,5 +171,65 @@ namespace CSharpModelsToJson.Tests
             Assert.IsNotNull(modelCollector.Models.First().BaseClasses);
             Assert.AreEqual(new[] { "Dictionary<string, string>" }, modelCollector.Models.First().BaseClasses);
         }
+
+        [Test]
+        public void ReturnObsoleteClassInfo()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+                [Obsolete(@""test"")]
+                public class A
+                {
+                    [Obsolete(@""test prop"")]
+                    public string A { get; set }
+
+                    public string B { get; set }
+                }"
+            );
+
+            var root = (CompilationUnitSyntax)tree.GetRoot();
+
+            var modelCollector = new ModelCollector();
+            modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
+
+            var model = modelCollector.Models.First();
+
+            Assert.IsNotNull(model);
+            Assert.IsNotNull(model.Properties);
+
+            Assert.IsTrue(model.ExtraInfo.Obsolete);
+            Assert.AreEqual("test", model.ExtraInfo.ObsoleteMessage);
+
+            Assert.IsTrue(model.Properties.First(x => x.Identifier.Equals("A")).ExtraInfo.Obsolete);
+            Assert.AreEqual("test prop", model.Properties.First(x => x.Identifier.Equals("A")).ExtraInfo.ObsoleteMessage);
+
+            Assert.IsFalse(model.Properties.First(x => x.Identifier.Equals("B")).ExtraInfo.Obsolete);
+            Assert.IsNull(model.Properties.First(x => x.Identifier.Equals("B")).ExtraInfo.ObsoleteMessage);
+        }
+
+        [Test]
+        public void ReturnObsoleteEnumInfo()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+                [Obsolete(@""test"")]
+                public enum A
+                {
+                    A = 0,
+                    B = 1,
+                }"
+            );
+
+            var root = (CompilationUnitSyntax)tree.GetRoot();
+
+            var enumCollector = new EnumCollector();
+            enumCollector.VisitEnumDeclaration(root.DescendantNodes().OfType<EnumDeclarationSyntax>().First());
+
+            var model = enumCollector.Enums.First();
+
+            Assert.IsNotNull(model);
+            Assert.IsNotNull(model.Values);
+
+            Assert.IsTrue(model.ExtraInfo.Obsolete);
+            Assert.AreEqual("test", model.ExtraInfo.ObsoleteMessage);
+        }
     }
 }
