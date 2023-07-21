@@ -141,6 +141,9 @@ namespace CSharpModelsToJson.Tests
                     [JsonIgnore]
                     public string Ignored { get; set; }
 
+                    [IgnoreDataMember]
+                    public string Ignored2 { get; set; }
+
                     public void AMember() 
                     { 
                     }
