@@ -172,5 +172,31 @@ namespace CSharpModelsToJson.Tests
             Assert.That(modelCollector.Models.First().BaseClasses, Is.Not.Null);
             Assert.That(modelCollector.Models.First().BaseClasses, Is.EqualTo(new[] { "Dictionary<string, string>" }));
         }
+
+        [Test]
+        public void EnumBinaryValue()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+                public enum A
+                {
+                    A = 0b_0000_0001,
+                    B = 0b00000010,
+                }"
+            );
+
+            var root = (CompilationUnitSyntax)tree.GetRoot();
+
+            var enumCollector = new EnumCollector();
+            enumCollector.VisitEnumDeclaration(root.DescendantNodes().OfType<EnumDeclarationSyntax>().First());
+
+            var model = enumCollector.Enums.First();
+
+            Assert.IsNotNull(model);
+            Assert.IsNotNull(model.Values);
+
+            Assert.AreEqual("0b00000001", model.Values["A"]);
+            Assert.AreEqual("0b00000010", model.Values["B"]);
+        }
+
     }
 }
