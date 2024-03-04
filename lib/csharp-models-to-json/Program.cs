@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using Ganss.IO;
 
 namespace CSharpModelsToJson
@@ -35,7 +35,7 @@ namespace CSharpModelsToJson
                 files.Add(parseFile(fileName));
             }
 
-            string json = JsonConvert.SerializeObject(files);
+            string json = JsonSerializer.Serialize(files);
             System.Console.WriteLine(json);
         }
 
