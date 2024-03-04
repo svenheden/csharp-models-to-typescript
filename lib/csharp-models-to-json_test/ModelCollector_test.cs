@@ -25,8 +25,8 @@ namespace CSharpModelsToJson.Tests
             var modelCollector = new ModelCollector();
             modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
-            Assert.IsNotNull(modelCollector.Models);
-            Assert.AreEqual(new[] { "B", "C", "D" }, modelCollector.Models.First().BaseClasses);
+            Assert.That(modelCollector.Models, Is.Not.Null);
+            Assert.That(modelCollector.Models.First().BaseClasses, Is.EqualTo(new[] { "B", "C", "D" }));
         }
 
         [Test]
@@ -67,9 +67,9 @@ namespace CSharpModelsToJson.Tests
             var modelCollector = new ModelCollector();
             modelCollector.Visit(root);
 
-            Assert.IsNotNull(modelCollector.Models);
-            Assert.AreEqual(3, modelCollector.Models.Count);
-            Assert.AreEqual(3, modelCollector.Models.First().Properties.Count());
+            Assert.That(modelCollector.Models, Is.Not.Null);
+            Assert.That(modelCollector.Models.Count, Is.EqualTo(3));
+            Assert.That(modelCollector.Models.First().Properties.Count(), Is.EqualTo(3));
         }
 
 
@@ -90,8 +90,8 @@ namespace CSharpModelsToJson.Tests
             var modelCollector = new ModelCollector();
             modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
-            Assert.IsNotNull(modelCollector.Models);
-            Assert.AreEqual(new[] { "IController<Controller>" }, modelCollector.Models.First().BaseClasses);
+            Assert.That(modelCollector.Models, Is.Not.Null);
+            Assert.That(modelCollector.Models.First().BaseClasses, Is.EqualTo(new[] { "IController<Controller>" }));
         }
 
         [Test]
@@ -119,9 +119,9 @@ namespace CSharpModelsToJson.Tests
             var modelCollector = new ModelCollector();
             modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
-            Assert.IsNotNull(modelCollector.Models);
-            Assert.IsNotNull(modelCollector.Models.First().Properties);
-            Assert.AreEqual(1, modelCollector.Models.First().Properties.Count());
+            Assert.That(modelCollector.Models, Is.Not.Null);
+            Assert.That(modelCollector.Models.First().Properties, Is.Not.Null);
+            Assert.That(modelCollector.Models.First().Properties.Count(), Is.EqualTo(1));
         }
 
         [Test]
@@ -152,9 +152,10 @@ namespace CSharpModelsToJson.Tests
             var modelCollector = new ModelCollector();
             modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
-            Assert.IsNotNull(modelCollector.Models);
-            Assert.IsNotNull(modelCollector.Models.First().Properties);
-            Assert.AreEqual(1, modelCollector.Models.First().Properties.Count());
+            Assert.That(modelCollector.Models, Is.Not.Null);
+            Assert.That(modelCollector.Models.First().Properties, Is.Not.Null);
+            Assert.That(modelCollector.Models.First().Properties.Count(), Is.EqualTo(1));
+
         }
 
         [Test]
@@ -167,9 +168,9 @@ namespace CSharpModelsToJson.Tests
             var modelCollector = new ModelCollector();
             modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
-            Assert.IsNotNull(modelCollector.Models);
-            Assert.IsNotNull(modelCollector.Models.First().BaseClasses);
-            Assert.AreEqual(new[] { "Dictionary<string, string>" }, modelCollector.Models.First().BaseClasses);
+            Assert.That(modelCollector.Models, Is.Not.Null);
+            Assert.That(modelCollector.Models.First().BaseClasses, Is.Not.Null);
+            Assert.That(modelCollector.Models.First().BaseClasses, Is.EqualTo(new[] { "Dictionary<string, string>" }));
         }
     }
 }
