@@ -14,6 +14,9 @@
   "bin": {
     "csharp-models-to-typescript": "./index.js"
   },
+  "scripts": {
+	  "test": "node index.js --config=./test-files/test-config.json && node ./test-files/test-file-exists.js --config=./test-files/test-config.json"
+  },
   "dependencies": {
     "camelcase": "^6.0.0"
   }
