@@ -61,7 +61,18 @@ dotnetProcess.stdout.on('end', () => {
     let json;
 
     try {
-        json = JSON.parse(stdout);
+        // Extract the JSON content between the markers
+        const startMarker = '<<<<<<START_JSON>>>>>>';
+        const endMarker = '<<<<<<END_JSON>>>>>>';
+        const startIndex = stdout.indexOf(startMarker);
+        const endIndex = stdout.indexOf(endMarker);
+
+        if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+            const jsonString = stdout.substring(startIndex + startMarker.length, endIndex).trim();
+            json = JSON.parse(jsonString);
+        } else {
+            throw new Error('JSON markers not found or invalid order of markers.');
+        }
     } catch (error) {
         return console.error([
             'The output from `csharp-models-to-json` contains invalid JSON.',
