@@ -46,8 +46,8 @@ let timer = process.hrtime();
 
 const dotnetProject = path.join(__dirname, 'lib/csharp-models-to-json');
 
-let processParamaters = ['run', `--project "${dotnetProject}"`, `"${path.resolve(configPath)}"`];
-if(config.suppressEolFrameworkErrors){
+let processParameters = ['run', `--project "${dotnetProject}"`, `"${path.resolve(configPath)}"`];
+if (config.suppressEolFrameworkErrors){
     processParamaters.push('--property:CheckEolTargetFramework=false');
 }
 
