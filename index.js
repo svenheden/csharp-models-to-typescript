@@ -48,7 +48,7 @@ const dotnetProject = path.join(__dirname, 'lib/csharp-models-to-json');
 
 let processParameters = ['run', `--project "${dotnetProject}"`, `"${path.resolve(configPath)}"`];
 if (config.suppressEolFrameworkErrors){
-    processParamaters.push('--property:CheckEolTargetFramework=false');
+    processParameters.push('--property:CheckEolTargetFramework=false');
 }
 
 const dotnetProcess = spawn('dotnet', processParameters, { shell: true });
