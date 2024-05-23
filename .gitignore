@@ -4,6 +4,9 @@ lib/csharp-models-to-json/bin
 lib/csharp-models-to-json/obj
 lib/csharp-models-to-json_test/obj/
 lib/csharp-models-to-json_test/bin/
+/test-files/api.d.ts
 
+**/.vs/*
 .vscode/*
 .idea/*
+*.user
