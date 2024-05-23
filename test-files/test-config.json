@@ -1,0 +1,25 @@
+{
+  "include": [
+    "test-files/*.cs"
+  ],
+  "exclude": [ ],
+  "output": "./test-files/api.d.ts",
+  "camelCase": false,
+  "camelCaseEnums": false,
+  "camelCaseOptions": {
+    "pascalCase": false,
+    "preserveConsecutiveUppercase": false,
+    "locale": "en-US"
+  },
+  "includeComments": true,
+  "numericEnums": true,
+  "omitSemicolon": true,
+  "omitFilePathComment": true,
+  "stringLiteralTypesInsteadOfEnums": false,
+  "customTypeTranslations": {
+    "ProductName": "string",
+    "ProductNumber": "string",
+    "byte": "number",
+    "uint": "number"
+  }
+}
