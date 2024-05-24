@@ -5,13 +5,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
  
 namespace CSharpModelsToJson
 {
-    class Enum
+    public class Enum
     {
         public string Identifier { get; set; }
         public Dictionary<string, object> Values { get; set; }
     }
 
-    class EnumCollector: CSharpSyntaxWalker
+    public class EnumCollector: CSharpSyntaxWalker
     {
         public readonly List<Enum> Enums = new List<Enum>();
 
