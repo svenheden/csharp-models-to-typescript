@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
 using Ganss.IO;
+using System.Text;
 
 namespace CSharpModelsToJson
 {
@@ -36,7 +37,13 @@ namespace CSharpModelsToJson
             }
 
             string json = JsonSerializer.Serialize(files);
-            System.Console.WriteLine(json);
+
+            var sb = new StringBuilder();
+            sb.AppendLine("<<<<<<START_JSON>>>>>>");
+            sb.AppendLine(json);
+            sb.AppendLine("<<<<<<END_JSON>>>>>>");
+
+            System.Console.WriteLine(sb.ToString());
         }
 
         static List<string> getFileNames(List<string> includes, List<string> excludes) {
