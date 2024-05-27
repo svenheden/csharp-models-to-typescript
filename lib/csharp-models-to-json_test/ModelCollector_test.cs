@@ -177,10 +177,13 @@ namespace CSharpModelsToJson.Tests
         public void EnumBinaryValue()
         {
             var tree = CSharpSyntaxTree.ParseText(@"
-                public enum A
-                {
-                    A = 0b_0000_0001,
-                    B = 0b00000010,
+                public enum A {
+                    A = 1,              // decimal: 1
+                    B = 1_002,          // decimal: 1002
+                    C = 0b011,          // binary: 3 in decimal
+                    D = 0b_0000_0100,   // binary: 4 in decimal
+                    E = 0x005,          // hexadecimal: 5 in decimal
+                    F = 0x000_01a,      // hexadecimal: 26 in decimal
                 }"
             );
 
@@ -191,11 +194,15 @@ namespace CSharpModelsToJson.Tests
 
             var model = enumCollector.Enums.First();
 
-            Assert.IsNotNull(model);
-            Assert.IsNotNull(model.Values);
+            Assert.That(model, Is.Not.Null);
+            Assert.That(model.Values, Is.Not.Null);
 
-            Assert.AreEqual("0b00000001", model.Values["A"]);
-            Assert.AreEqual("0b00000010", model.Values["B"]);
+            Assert.That(model.Values["A"], Is.EqualTo("1"));
+            Assert.That(model.Values["B"], Is.EqualTo("1002"));
+            Assert.That(model.Values["C"], Is.EqualTo("0b011"));
+            Assert.That(model.Values["D"], Is.EqualTo("0b00000100"));
+            Assert.That(model.Values["E"], Is.EqualTo("0x005"));
+            Assert.That(model.Values["F"], Is.EqualTo("0x00001a"));
         }
 
     }

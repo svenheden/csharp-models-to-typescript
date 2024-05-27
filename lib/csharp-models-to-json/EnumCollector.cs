@@ -24,10 +24,7 @@ namespace CSharpModelsToJson
                     ? member.EqualsValue.Value.ToString()
                     : null;
 
-                if (value?.StartsWith("0b") == true)
-                    value = value.Replace("_", "");
-
-                values[member.Identifier.ToString()] = value;
+                values[member.Identifier.ToString()] = value?.Replace("_", "");
             }
 
             this.Enums.Add(new Enum() {
