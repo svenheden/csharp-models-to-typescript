@@ -20,9 +20,11 @@ namespace CSharpModelsToJson
             var values = new Dictionary<string, object>();
 
             foreach (var member in node.Members) {
-                values[member.Identifier.ToString()] = member.EqualsValue != null
+                var value = member.EqualsValue != null
                     ? member.EqualsValue.Value.ToString()
                     : null;
+
+                values[member.Identifier.ToString()] = value?.Replace("_", "");
             }
 
             this.Enums.Add(new Enum() {
