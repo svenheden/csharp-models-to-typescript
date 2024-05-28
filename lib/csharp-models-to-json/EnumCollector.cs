@@ -5,13 +5,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
  
 namespace CSharpModelsToJson
 {
-    class Enum
+    public class Enum
     {
         public string Identifier { get; set; }
         public Dictionary<string, object> Values { get; set; }
     }
 
-    class EnumCollector: CSharpSyntaxWalker
+    public class EnumCollector: CSharpSyntaxWalker
     {
         public readonly List<Enum> Enums = new List<Enum>();
 
@@ -20,9 +20,11 @@ namespace CSharpModelsToJson
             var values = new Dictionary<string, object>();
 
             foreach (var member in node.Members) {
-                values[member.Identifier.ToString()] = member.EqualsValue != null
+                var value = member.EqualsValue != null
                     ? member.EqualsValue.Value.ToString()
                     : null;
+
+                values[member.Identifier.ToString()] = value?.Replace("_", "");
             }
 
             this.Enums.Add(new Enum() {
