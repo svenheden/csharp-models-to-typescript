@@ -113,9 +113,13 @@ const createConverter = config => {
         } else {
             rows.push(`export enum ${enum_.Identifier} {`);
 
-            entries.forEach(([key, value], i) => {
+            entries.forEach(([key, value]) => {
                 if (config.numericEnums) {
-                    rows.push(`    ${key} = ${value != null ? value : i},`);
+                    if (value == null) {
+                        rows.push(`    ${key},`);
+                    } else {
+                        rows.push(`    ${key} = ${value},`);
+                    }
                 } else {
                     rows.push(`    ${key} = '${getEnumStringValue(key)}',`);
                 }
