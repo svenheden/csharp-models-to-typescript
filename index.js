@@ -60,6 +60,8 @@ dotnetProcess.stderr.on('data', err => {
 dotnetProcess.stdout.on('end', () => {
     let json;
 
+    //console.log(stdout);
+
     try {
         // Extract the JSON content between the markers
         const startMarker = '<<<<<<START_JSON>>>>>>';
