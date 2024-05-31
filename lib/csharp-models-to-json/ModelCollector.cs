@@ -87,7 +87,8 @@ namespace CSharpModelsToJson
         private static bool IsIgnored(SyntaxList<AttributeListSyntax> propertyAttributeLists) => 
             propertyAttributeLists.Any(attributeList => 
                 attributeList.Attributes.Any(attribute => 
-                    attribute.Name.ToString().Equals("JsonIgnore")));
+                    attribute.Name.ToString().Equals("JsonIgnore") ||
+                    attribute.Name.ToString().Equals("IgnoreDataMember")));
 
         private static bool IsAccessible(SyntaxTokenList modifiers) => modifiers.All(modifier =>
             modifier.ToString() != "const" &&
