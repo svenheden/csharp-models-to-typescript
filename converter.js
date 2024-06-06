@@ -123,15 +123,15 @@ const createConverter = config => {
         } else {
             rows.push(`export enum ${enum_.Identifier} {`);
 
-            entries.forEach(([key, entrie]) => {
-                if (entrie.Obsolete) {
-                    rows.push(formatObsoleteMessage(entrie.ObsoleteMessage, '    '));
+            entries.forEach(([key, entry]) => {
+                if (entry.Obsolete) {
+                    rows.push(formatObsoleteMessage(entry.ObsoleteMessage, '    '));
                 }
                 if (config.numericEnums) {
-                    if (entrie.Value == null) {
+                    if (entry.Value == null) {
                         rows.push(`    ${key},`);
                     } else {
-                        rows.push(`    ${key} = ${entrie.Value},`);
+                        rows.push(`    ${key} = ${entry.Value},`);
                     }
                 } else {
                     rows.push(`    ${key} = '${getEnumStringValue(key)}',`);
@@ -144,7 +144,7 @@ const createConverter = config => {
         return rows;
     };
 
-    const formatObsoleteMessage = (obsoleteMessage, identation) => {
+    const formatObsoleteMessage = (obsoleteMessage, indentation) => {
         if (obsoleteMessage) {
             obsoleteMessage = ' ' + obsoleteMessage;
         } else {
@@ -152,9 +152,9 @@ const createConverter = config => {
         }
 
         let deprecationMessage = '';
-        deprecationMessage += `${identation}/**\n`;
-        deprecationMessage += `${identation} * @deprecated${obsoleteMessage}\n`;
-        deprecationMessage += `${identation} */`;
+        deprecationMessage += `${indentation}/**\n`;
+        deprecationMessage += `${indentation} * @deprecated${obsoleteMessage}\n`;
+        deprecationMessage += `${indentation} */`;
 
         return deprecationMessage;
     }
