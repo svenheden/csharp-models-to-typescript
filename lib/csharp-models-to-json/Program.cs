@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
 using Ganss.IO;
-using System.Text;
 
 namespace CSharpModelsToJson
 {
@@ -36,13 +37,19 @@ namespace CSharpModelsToJson
                 files.Add(parseFile(fileName));
             }
 
-            string json = JsonSerializer.Serialize(files);
+            JsonSerializerOptions options = new()
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            string json = JsonSerializer.Serialize(files, options);
 
             var sb = new StringBuilder();
             sb.AppendLine("<<<<<<START_JSON>>>>>>");
             sb.AppendLine(json);
             sb.AppendLine("<<<<<<END_JSON>>>>>>");
 
+            System.Console.OutputEncoding = System.Text.Encoding.UTF8;
             System.Console.WriteLine(sb.ToString());
         }
 

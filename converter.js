@@ -70,6 +70,9 @@ const createConverter = config => {
         if (!config.omitFilePathComment) {
             rows.push(`// ${filename}`);
         }
+        if (model.Obsolete) {
+            rows.push(formatObsoleteMessage(model.ObsoleteMessage, ''));
+        }
         rows.push(`export interface ${model.ModelName}${baseClasses} {`);
 
         const propertySemicolon = config.omitSemicolon ? '' : ';';
@@ -79,6 +82,9 @@ const createConverter = config => {
         }
 
         members.forEach(member => {
+            if (member.Obsolete) {
+                rows.push(formatObsoleteMessage(member.ObsoleteMessage, '    '));
+            }
             rows.push(`    ${convertProperty(member)}${propertySemicolon}`);
         });
 
@@ -94,6 +100,10 @@ const createConverter = config => {
         }
 
         const entries = Object.entries(enum_.Values);
+
+        if (enum_.Obsolete) {
+            rows.push(formatObsoleteMessage(enum_.ObsoleteMessage, ''));
+        }
 
         const getEnumStringValue = (value) => config.camelCaseEnums
             ? camelcase(value)
@@ -113,12 +123,15 @@ const createConverter = config => {
         } else {
             rows.push(`export enum ${enum_.Identifier} {`);
 
-            entries.forEach(([key, value]) => {
+            entries.forEach(([key, entry]) => {
+                if (entry.Obsolete) {
+                    rows.push(formatObsoleteMessage(entry.ObsoleteMessage, '    '));
+                }
                 if (config.numericEnums) {
-                    if (value == null) {
+                    if (entry.Value == null) {
                         rows.push(`    ${key},`);
                     } else {
-                        rows.push(`    ${key} = ${value},`);
+                        rows.push(`    ${key} = ${entry.Value},`);
                     }
                 } else {
                     rows.push(`    ${key} = '${getEnumStringValue(key)}',`);
@@ -130,6 +143,21 @@ const createConverter = config => {
 
         return rows;
     };
+
+    const formatObsoleteMessage = (obsoleteMessage, indentation) => {
+        if (obsoleteMessage) {
+            obsoleteMessage = ' ' + obsoleteMessage;
+        } else {
+            obsoleteMessage = '';
+        }
+
+        let deprecationMessage = '';
+        deprecationMessage += `${indentation}/**\n`;
+        deprecationMessage += `${indentation} * @deprecated${obsoleteMessage}\n`;
+        deprecationMessage += `${indentation} */`;
+
+        return deprecationMessage;
+    }
 
     const convertProperty = property => {
         const optional = property.Type.endsWith('?');
