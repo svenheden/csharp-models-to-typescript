@@ -70,9 +70,11 @@ const createConverter = config => {
         if (!config.omitFilePathComment) {
             rows.push(`// ${filename}`);
         }
-        if (model.Obsolete) {
-            rows.push(formatObsoleteMessage(model.ObsoleteMessage, ''));
+        let classCommentRows = formatComment(model.ExtraInfo, '')
+        if (classCommentRows) {
+            rows.push(classCommentRows);
         }
+        
         rows.push(`export interface ${model.ModelName}${baseClasses} {`);
 
         const propertySemicolon = config.omitSemicolon ? '' : ';';
@@ -82,9 +84,11 @@ const createConverter = config => {
         }
 
         members.forEach(member => {
-            if (member.Obsolete) {
-                rows.push(formatObsoleteMessage(member.ObsoleteMessage, '    '));
+            let memberCommentRows = formatComment(member.ExtraInfo, '    ')
+            if (memberCommentRows) {
+                rows.push(memberCommentRows);
             }
+
             rows.push(`    ${convertProperty(member)}${propertySemicolon}`);
         });
 
@@ -101,8 +105,9 @@ const createConverter = config => {
 
         const entries = Object.entries(enum_.Values);
 
-        if (enum_.Obsolete) {
-            rows.push(formatObsoleteMessage(enum_.ObsoleteMessage, ''));
+        let classCommentRows = formatComment(enum_.ExtraInfo, '')
+        if (classCommentRows) {
+            rows.push(classCommentRows);
         }
 
         const getEnumStringValue = (value) => config.camelCaseEnums
@@ -124,8 +129,9 @@ const createConverter = config => {
             rows.push(`export enum ${enum_.Identifier} {`);
 
             entries.forEach(([key, entry]) => {
-                if (entry.Obsolete) {
-                    rows.push(formatObsoleteMessage(entry.ObsoleteMessage, '    '));
+                let classCommentRows = formatComment(entry.ExtraInfo, '    ')
+                if (classCommentRows) {
+                    rows.push(classCommentRows);
                 }
                 if (config.numericEnums) {
                     if (entry.Value == null) {
@@ -144,19 +150,53 @@ const createConverter = config => {
         return rows;
     };
 
-    const formatObsoleteMessage = (obsoleteMessage, indentation) => {
-        if (obsoleteMessage) {
-            obsoleteMessage = ' ' + obsoleteMessage;
-        } else {
-            obsoleteMessage = '';
+    const formatComment = (extraInfo, indentation) => {
+        if (!config.includeComments || !extraInfo || (!extraInfo.Obsolete && !extraInfo.Summary)) {
+            return undefined;
         }
 
-        let deprecationMessage = '';
-        deprecationMessage += `${indentation}/**\n`;
-        deprecationMessage += `${indentation} * @deprecated${obsoleteMessage}\n`;
-        deprecationMessage += `${indentation} */`;
+        let comment = '';
+        comment += `${indentation}/**\n`;
 
-        return deprecationMessage;
+        if (extraInfo.Summary) {
+            let commentLines = extraInfo.Summary.split(/\r?\n/);
+            commentLines = commentLines.map((e) => {
+                return `${indentation} * ${replaceCommentTags(e)}\n`;
+            })
+            comment += commentLines.join('');
+        }
+        if (extraInfo.Remarks) {
+            comment += `${indentation} *\n`;
+            comment += `${indentation} * @remarks\n`;
+            let commentLines = extraInfo.Remarks.split(/\r?\n/);
+            commentLines = commentLines.map((e) => {
+                return `${indentation} * ${replaceCommentTags(e)}\n`;
+            })
+            comment += commentLines.join('');
+        }
+
+        if (extraInfo.Obsolete) {
+            if (extraInfo.Summary) {
+                comment += `${indentation} *\n`;
+            }
+
+            let obsoleteMessage = '';
+            if (extraInfo.ObsoleteMessage) {
+                obsoleteMessage = ' ' + replaceCommentTags(extraInfo.ObsoleteMessage);
+            }
+            comment += `${indentation} * @deprecated${obsoleteMessage}\n`;
+        }
+
+        comment += `${indentation} */`;
+
+        return comment;
+    }
+
+    const replaceCommentTags = comment => {
+        return comment
+            .replace(/<see cref="(.+)"\/>/gi, '{@link $1}')
+            .replace(/<see cref="(.+)">(.+)<\/see>/gi, '{@link $1 | $2}')
+            .replace('<inheritdoc/>', '@inheritDoc');
     }
 
     const convertProperty = property => {

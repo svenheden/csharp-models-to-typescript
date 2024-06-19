@@ -32,6 +32,7 @@ $ npm install --save csharp-models-to-typescript
     ],
     "namespace": "Api",
     "output": "./api.d.ts",
+    "includeComments": true,
     "camelCase": false,
     "camelCaseEnums": false,
     "camelCaseOptions": {
