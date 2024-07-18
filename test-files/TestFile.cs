@@ -18,6 +18,7 @@ namespace TestNamespace
         [Obsolete("obsolete test prop")]
         public string StringProperty { get; set; }
 
+        [DataMember(EmitDefaultValue = false)]
         public DateTime DateTimeProperty { get; set; }
 
         public bool BooleanProperty { get; set; }

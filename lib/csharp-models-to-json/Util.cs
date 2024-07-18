@@ -89,5 +89,22 @@ namespace CSharpModelsToJson
 
             return null;
         }
+
+        internal static bool GetEmitDefaultValue(SyntaxList<AttributeListSyntax> attributeLists)
+        {
+            var dataMemberAttribute = attributeLists
+                .SelectMany(attributeList => attributeList.Attributes)
+                .FirstOrDefault(attribute => attribute.Name.ToString().Equals("DataMember") || attribute.Name.ToString().Equals("DataMemberAttribute"));
+
+            if (dataMemberAttribute?.ArgumentList == null)
+                return true;
+
+            var emitDefaultValueArgument = dataMemberAttribute.ArgumentList.Arguments.FirstOrDefault(x => x.ToString().StartsWith("EmitDefaultValue"));
+
+            if (emitDefaultValueArgument == null)
+                return true;
+
+            return !emitDefaultValueArgument.ToString().EndsWith("false");
+        }
     }
 }
