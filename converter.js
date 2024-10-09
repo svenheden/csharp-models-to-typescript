@@ -161,7 +161,7 @@ const createConverter = config => {
 
     const convertProperty = property => {
         const optional = property.Type.endsWith('?');
-        const identifier = convertIdentifier(optional ? `${property.Identifier.split(' ')[0]}?` : property.Identifier.split(' ')[0]);
+        const identifier = convertIdentifier(optional ? `${property.Identifier.split(/[ =]+/)[0]}?` : property.Identifier.split(/[ =]+/)[0]);
 
         const type = parseType(property.Type);
 
@@ -211,7 +211,19 @@ const createConverter = config => {
         return array ? `${type}[]` : type;
     };
 
-    const convertIdentifier = identifier => config.camelCase ? camelcase(identifier, config.camelCaseOptions) : identifier;
+    const convertIdentifier = identifier => {
+        identifier = config.lowerFirstLetters ? lowerFirstLetters(identifier) : identifier;
+        return config.camelCase ? camelcase(identifier, config.camelCaseOptions) : identifier;
+    }
+    const lowerFirstLetters = str => {
+        let i = 0;
+        while (i < str.length && str[i].toLowerCase() !== str[i] && str[i] !== "_") {
+          i++;
+        }
+        if(i>1 && str.length !==i) 
+            i = i-1; // if it has only one upper letter, it will be lowered, but if it has more than one upper letter, the last one may be start of another string
+        return str.slice(0, i).toLowerCase() + str.slice(i);
+    }
     const convertType = type => type in typeTranslations ? typeTranslations[type] : type;
 
     return convert;

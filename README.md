@@ -33,6 +33,7 @@ $ npm install --save csharp-models-to-typescript
     "namespace": "Api",
     "output": "./api.d.ts",
     "camelCase": false,
+    "lowerFirstLetters": false,
     "camelCaseEnums": false,
     "camelCaseOptions": {
         "pascalCase": false,
@@ -59,6 +60,17 @@ $ npm install --save csharp-models-to-typescript
 ```
 
 3. Run the npm script `generate-types` and the output file specified in your config should be created and populated with your models.
+
+## Configure Config File
+
+**camelCase** makes the attributes camel case, using **camelCaseOptions**. npm camelcase package is used for this purpose.
+**output** is the location for output
+**namespace** is the namespace for the generated files
+**include** are the locations for the input files
+**exclude** are files that are excluded
+**lowerFirstLetters** lowers the first letters of attributes. ID => id MYLocation => myLocation
+
+
 
 
 ## License
