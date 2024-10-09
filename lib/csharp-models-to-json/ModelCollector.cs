@@ -12,9 +12,7 @@ namespace CSharpModelsToJson
         public IEnumerable<Field> Fields { get; set; }
         public IEnumerable<Property> Properties { get; set; }
         public IEnumerable<string> BaseClasses { get; set; }
-        public bool Obsolete { get; set; }
-        public string ObsoleteMessage { get; set; }
-
+        public ExtraInfo ExtraInfo { get; set; }
     }
 
     public class Field
@@ -27,8 +25,7 @@ namespace CSharpModelsToJson
     {
         public string Identifier { get; set; }
         public string Type { get; set; }
-        public bool Obsolete { get; set; }
-        public string ObsoleteMessage { get; set; }
+        public ExtraInfo ExtraInfo { get; set; }
     }
 
     public class ModelCollector : CSharpSyntaxWalker
@@ -86,8 +83,13 @@ namespace CSharpModelsToJson
                                 .Where(property => !IsIgnored(property.AttributeLists))
                                 .Select(ConvertProperty),
                 BaseClasses = node.BaseList?.Types.Select(s => s.ToString()),
-                Obsolete = Util.IsObsolete(node.AttributeLists),
-                ObsoleteMessage = Util.GetObsoleteMessage(node.AttributeLists),
+                ExtraInfo = new ExtraInfo
+                {
+                    Obsolete = Util.IsObsolete(node.AttributeLists),
+                    ObsoleteMessage = Util.GetObsoleteMessage(node.AttributeLists),
+                    Summary = Util.GetSummaryMessage(node),
+                    Remarks = Util.GetRemarksMessage(node),
+                }
             };
         }
 
@@ -113,8 +115,13 @@ namespace CSharpModelsToJson
         {
             Identifier = property.Identifier.ToString(),
             Type = property.Type.ToString(),
-            Obsolete = Util.IsObsolete(property.AttributeLists),
-            ObsoleteMessage = Util.GetObsoleteMessage(property.AttributeLists)
+            ExtraInfo = new ExtraInfo
+            {
+                Obsolete = Util.IsObsolete(property.AttributeLists),
+                ObsoleteMessage = Util.GetObsoleteMessage(property.AttributeLists),
+                Summary = Util.GetSummaryMessage(property),
+                Remarks = Util.GetRemarksMessage(property),
+            }
         };
     }
 }
