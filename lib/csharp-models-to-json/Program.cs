@@ -5,7 +5,6 @@ using System.Text.Json.Serialization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.Extensions.Configuration;
 using Ganss.IO;
 
 namespace CSharpModelsToJson
@@ -21,15 +20,17 @@ namespace CSharpModelsToJson
     {
         static void Main(string[] args)
         {
-            IConfiguration config = new ConfigurationBuilder()
-                .AddJsonFile(args[0], true, true)
-                .Build();
+            Config? config = null;
+            if (System.IO.File.Exists(args[0])) {
+                var configJson = System.IO.File.ReadAllText(args[0]);
+                var opts = new JsonSerializerOptions {
+                    PropertyNameCaseInsensitive = true
+                };
+                config = JsonSerializer.Deserialize<Config>(configJson, opts);
+            }
 
-            List<string> includes = new List<string>();
-            List<string> excludes = new List<string>();
-
-            config.Bind("include", includes);
-            config.Bind("exclude", excludes);
+            var includes = config?.Include ?? [];
+            var excludes = config?.Exclude ?? [];
 
             List<File> files = new List<File>();
 
