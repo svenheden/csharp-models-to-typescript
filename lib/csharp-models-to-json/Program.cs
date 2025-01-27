@@ -22,9 +22,11 @@ namespace CSharpModelsToJson
         {
             Config? config = null;
             if (System.IO.File.Exists(args[0])) {
-                config = JsonSerializer.Deserialize<Config>(System.IO.File.ReadAllText(args[0]), new JsonSerializerOptions {
+                var json = System.IO.File.ReadAllText(args[0]);
+                var opts = new JsonSerializerOptions {
                     PropertyNameCaseInsensitive = true
-                });
+                };
+                config = JsonSerializer.Deserialize<Config>(json, opts);
             }
 
             var includes = config?.Include ?? [];
