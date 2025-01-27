@@ -20,10 +20,15 @@ namespace CSharpModelsToJson
     {
         static void Main(string[] args)
         {
-            var config = JsonSerializer.Deserialize<Config>(System.IO.File.ReadAllText(args[0]));
+            Config? config = null;
+            if (System.IO.File.Exists(args[0])) {
+                config = JsonSerializer.Deserialize<Config>(System.IO.File.ReadAllText(args[0]), new JsonSerializerOptions {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
 
-            var includes = config.Include ?? [];
-            var excludes = config.Exclude ?? [];
+            var includes = config?.Include ?? [];
+            var excludes = config?.Exclude ?? [];
 
             List<File> files = new List<File>();
 
