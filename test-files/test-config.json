@@ -13,6 +13,7 @@
   },
   "includeComments": true,
   "numericEnums": true,
+  "validateEmitDefaultValue": true,
   "omitSemicolon": true,
   "omitFilePathComment": true,
   "stringLiteralTypesInsteadOfEnums": false,
