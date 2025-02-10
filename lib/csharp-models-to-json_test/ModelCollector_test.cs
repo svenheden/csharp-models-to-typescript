@@ -141,8 +141,14 @@ namespace CSharpModelsToJson.Tests
                     [JsonIgnore]
                     public string Ignored { get; set; }
 
+                    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+                    public string Included2 { get; set; }
+
+                    [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
+                    public string Ignored3 { get; set; }
+
                     [IgnoreDataMember]
-                    public string Ignored2 { get; set; }
+                    public string Ignored4 { get; set; }
 
                     public void AMember() 
                     { 
@@ -155,10 +161,12 @@ namespace CSharpModelsToJson.Tests
             var modelCollector = new ModelCollector();
             modelCollector.VisitClassDeclaration(root.DescendantNodes().OfType<ClassDeclarationSyntax>().First());
 
-            Assert.That(modelCollector.Models, Is.Not.Null);
-            Assert.That(modelCollector.Models.First().Properties, Is.Not.Null);
-            Assert.That(modelCollector.Models.First().Properties.Count(), Is.EqualTo(1));
+            var properties = modelCollector.Models?.First().Properties?.ToArray();
+            Assert.That(properties, Is.Not.Null);
+            Assert.That(properties.Length, Is.EqualTo(2));
 
+            Assert.That(properties[0].Identifier, Is.EqualTo("Included"));
+            Assert.That(properties[1].Identifier, Is.EqualTo("Included2"));
         }
 
         [Test]
