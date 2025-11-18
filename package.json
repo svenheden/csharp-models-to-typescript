@@ -21,6 +21,6 @@
     "camelcase": "^6.0.0"
   },
   "devDependencies": {
-    "rimraf": "^5.0.7"
+    "rimraf": "^6.1.0"
   }
 }
